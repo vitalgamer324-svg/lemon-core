@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Lemon Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            width: 380px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            color: #f1c40f;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .login-card p { color: #888; margin-bottom: 25px; font-size: 14px; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: #f1c40f; background: rgba(255, 255, 255, 0.12); }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, #f1c40f, #f39c12);
+            border: none;
+            border-radius: 8px;
+            color: black;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
+        }
+
+        .error-msg {
+            color: #ff4757;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .footer-links { margin-top: 25px; font-size: 13px; color: #888; }
+        .footer-links a { color: #f1c40f; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Lemon Core</h2>
+        <p>Login to Access Gaming Portal</p>
+
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="Username">
+        </div>
+        <div class="input-group">
+            <input type="password" id="passInput" placeholder="Password">
+        </div>
+
+        <button class="login-btn" onclick="handleAuth()">Login Now</button>
+        
+        <p id="errorBox" class="error-msg">Invalid Username or Password!</p>
+
+        <div class="footer-links">
+            Don't have an account? <a href="register.html">Register Here</a>
+        </div>
+    </div>
+
+    <script>
+        function handleAuth() {
+            const u = document.getElementById('userInput').value;
+            const p = document.getElementById('passInput').value;
+            const err = document.getElementById('errorBox');
+
+            // 1. Check for Admin Access (Direct)
+            if(u === "admin" && p === "lemon77") {
+                localStorage.setItem("currentUser", "Admin");
+                localStorage.setItem("role", "admin");
+                window.location.href = "admin.html";
+                return;
+            }
+
+            // 2. Check Member List from LocalStorage (Joiniing 'register.html' data)
+            let userDB = JSON.parse(localStorage.getItem("userDB") || "[]");
+            
+            // Find if user exists
+            let validUser = userDB.find(user => user.username === u && user.password === p);
+
+            if(validUser) {
+                localStorage.setItem("currentUser", u);
+                localStorage.setItem("role", "member");
+                window.location.href = "index.html";
+            } else {
+                // Show Error
+                err.style.display = "block";
+                setTimeout(() => { err.style.display = "none"; }, 3000);
+            }
+        }
+    </script>
+
+</body>
+</html>

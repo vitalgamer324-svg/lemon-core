@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lemon Core | Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #141414;
+            --accent: #b7db2c;
+            --danger: #ff4757;
+            --text-muted: #888;
+            --border: rgba(183, 219, 44, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg-dark); color: white; display: flex; height: 100vh; }
+
+        .sidebar {
+            width: 260px; background: #000; padding: 40px 20px;
+            border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;
+        }
+        .nav-item {
+            padding: 12px 15px; border-radius: 6px; color: var(--text-muted);
+            cursor: pointer; transition: 0.3s; font-size: 14px;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(183, 219, 44, 0.1); color: var(--accent); }
+
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .section { display: none; }
+        .section.active { display: block; }
+        h2 { font-family: 'Space Grotesk'; color: var(--accent); margin-bottom: 30px; text-transform: uppercase; }
+
+        .preview-box {
+            background: rgba(0,0,0,0.5); border: 1px solid #111; padding: 15px;
+            border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px;
+        }
+        .badge { background: var(--accent); color: black; padding: 4px 10px; border-radius: 4px; font-weight: 800; font-size: 11px; }
+
+        table { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: 10px; overflow: hidden; }
+        th { background: #1a1a1a; padding: 15px; text-align: left; font-size: 12px; color: var(--accent); text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #222; font-size: 14px; }
+
+        .btn { padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; font-size: 12px; transition: 0.2s; margin-right: 5px; }
+        .btn-ban { background: var(--danger); color: white; }
+        .btn-unban { background: #2ecc71; color: white; }
+        .btn-del { background: #444; color: white; }
+        .btn-save { background: var(--accent); color: black; width: 100%; padding: 15px; margin-top: 10px; font-size: 14px; }
+        .btn-admin { background: #333; color: var(--accent); border: 1px solid var(--accent); }
+
+        textarea, input {
+            width: 100%; background: #000; border: 1px solid #333; color: white;
+            padding: 15px; border-radius: 8px; margin-top: 10px; outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h3 style="color: var(--accent); margin-bottom: 20px; font-size: 18px;">LEMON ADMIN</h3>
+        <div class="nav-item active" onclick="openTab('members')">Members Control</div>
+        <div class="nav-item" onclick="openTab('announcement')">Announcements</div>
+        <div class="nav-item" onclick="openTab('design')">Website Design</div>
+        <a href="index.html" class="nav-item" style="margin-top: auto; color: var(--accent); text-decoration: none;">← Exit Panel</a>
+    </div>
+
+    <div class="content">
+        <div id="members" class="section active">
+            <h2>Member Management</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member Name</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="memberList"></tbody>
+            </table>
+        </div>
+
+        <div id="announcement" class="section">
+            <h2>Customize Announcement</h2>
+            <div class="preview-box">
+                <div class="badge">NEW UPDATE</div>
+                <div id="livePreview" style="font-size: 13px;">Loading current update...</div>
+            </div>
+            <textarea id="annInput" rows="3" placeholder="Type new announcement here..."></textarea>
+            <button class="btn btn-save" onclick="updateAnnouncement()">Update & Save</button>
+        </div>
+
+        <div id="design" class="section">
+            <h2>Website Design</h2>
+            <div style="background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border);">
+                <label>Change Primary Glow Color</label>
+                <input type="color" id="colorPicker" value="#b7db2c">
+                <button class="btn btn-save" onclick="updateColor()">Apply Color</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use 'allMembers' to stay consistent with Home Page
+        let users = JSON.parse(localStorage.getItem('allMembers')) || [
+            { id: 1, name: "Mahin", status: "Active", role: "Admin" }
+        ];
+
+        function openTab(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function renderMembers() {
+            const list = document.getElementById('memberList');
+            list.innerHTML = "";
+            users.forEach(u => {
+                list.innerHTML += `
+                    <tr>
+                        <td>
+                            ${u.name} <br> 
+                            <small style="color:#555">Role: ${u.role || 'Member'}</small>
+                        </td>
+                        <td style="color: ${u.status === 'Banned' ? 'red' : 'var(--accent)'}">${u.status}</td>
+                        <td>
+                            <button class="btn btn-admin" onclick="makeAdmin(${u.id})">Toggle Admin</button>
+                            ${u.status === 'Active' ? 
+                                `<button class="btn btn-ban" onclick="changeStatus(${u.id}, 'Banned')">Ban</button>` : 
+                                `<button class="btn btn-unban" onclick="changeStatus(${u.id}, 'Active')">Unban</button>`
+                            }
+                            <button class="btn btn-del" onclick="deleteProfile(${u.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            localStorage.setItem('allMembers', JSON.stringify(users));
+        }
+
+        function makeAdmin(id) {
+            const user = users.find(u => u.id === id);
+            user.role = (user.role === "Admin") ? "Member" : "Admin";
+            renderMembers();
+            alert(user.name + " role updated to: " + user.role);
+        }
+
+        function changeStatus(id, s) {
+            users.find(u => u.id === id).status = s;
+            renderMembers();
+        }
+
+        function deleteProfile(id) {
+            if(confirm("Confirm profile delete?")) {
+                users = users.filter(u => u.id !== id);
+                renderMembers();
+            }
+        }
+
+        function updateAnnouncement() {
+            const val = document.getElementById('annInput').value;
+            localStorage.setItem('announcementText', val);
+            document.getElementById('livePreview').innerText = val;
+            alert("Announcement Updated!");
+        }
+
+        function updateColor() {
+            const color = document.getElementById('colorPicker').value;
+            localStorage.setItem('themeColor', color);
+            alert("Color Theme Saved!");
+        }
+
+        window.onload = () => {
+            renderMembers();
+            const savedAnn = localStorage.getItem('announcementText') || "Season 4 Lifesteal is now active!";
+            document.getElementById('livePreview').innerText = savedAnn;
+            document.getElementById('annInput').value = savedAnn;
+        };
+    </script>
+</body>
+</html>

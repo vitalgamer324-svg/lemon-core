@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Settings | Lemon Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Lemon Core Theme Colors */
+            --bg-sidebar: #0d0e0a; /* Darker with a hint of lemon */
+            --bg-main: #14150f;    /* Main background with lemon tint */
+            --bg-card: #1c1e14;
+            --text-muted: #b5bac1;
+            --accent: #b7db2c;     /* Lemon Green */
+            --white: #ffffff;
+            --lemon-glow: 0 0 20px rgba(183, 219, 44, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: var(--bg-main); 
+            /* Subtle Lemon Gradient Background */
+            background-image: radial-gradient(circle at top right, rgba(183, 219, 44, 0.05), transparent),
+                              radial-gradient(circle at bottom left, rgba(183, 219, 44, 0.03), transparent);
+            color: var(--white); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 280px; 
+            background: var(--bg-sidebar); 
+            padding: 60px 20px 20px 40px;
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px;
+            border-right: 1px solid rgba(183, 219, 44, 0.1);
+        }
+        .sidebar-header {
+            font-size: 12px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; margin-bottom: 10px; padding-left: 10px;
+        }
+        .nav-item {
+            padding: 8px 10px; border-radius: 4px; color: var(--text-muted);
+            text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.2s;
+        }
+        .nav-item:hover { background: rgba(183, 219, 44, 0.1); color: var(--accent); }
+        .nav-item.active { background: var(--accent); color: #000; font-weight: 600; box-shadow: var(--lemon-glow); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 60px 40px; overflow-y: auto; position: relative; }
+        .content-wrap { max-width: 700px; margin: 0 auto; }
+        h2 { font-family: 'Space Grotesk'; font-size: 24px; margin-bottom: 20px; color: var(--accent); text-shadow: 0 0 10px rgba(183, 219, 44, 0.3); }
+
+        /* Profile Card */
+        .user-card {
+            background: var(--bg-sidebar); 
+            border-radius: 12px; 
+            overflow: hidden;
+            margin-bottom: 30px; 
+            border: 1px solid rgba(183, 219, 44, 0.2);
+            box-shadow: var(--lemon-glow);
+        }
+        .banner { height: 120px; background: var(--accent); position: relative; }
+        .pfp-wrap { position: absolute; bottom: -45px; left: 25px; }
+        .pfp-preview {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 6px solid var(--bg-sidebar); background: #111; object-fit: cover;
+        }
+        .user-info-bar { padding: 55px 25px 25px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Settings Form */
+        .settings-form { 
+            background: var(--bg-card); 
+            padding: 25px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(183, 219, 44, 0.1);
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+        
+        .form-group input, .form-group textarea {
+            width: 100%; 
+            background: #000; 
+            border: 1px solid rgba(183, 219, 44, 0.2); 
+            color: #dbdee1;
+            padding: 12px; 
+            border-radius: 6px; 
+            outline: none; 
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(183, 219, 44, 0.2); }
+        
+        .btn-save {
+            background: var(--accent); 
+            color: #000; 
+            border: none; 
+            padding: 12px 30px;
+            border-radius: 6px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: 0.3s;
+            text-transform: uppercase; 
+            font-size: 13px;
+            box-shadow: var(--lemon-glow);
+        }
+        .btn-save:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+        .close-btn {
+            position: fixed; top: 40px; right: 40px; width: 40px; height: 40px;
+            border: 2px solid var(--accent); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--accent); font-weight: bold; text-decoration: none;
+            transition: 0.3s;
+        }
+        .close-btn:hover { background: var(--accent); color: #000; box-shadow: var(--lemon-glow); }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">User Settings</div>
+        <div class="nav-item active">My Account</div>
+        <div class="nav-item">Profiles</div>
+        <div class="nav-item">Privacy & Safety</div>
+        <div style="height: 1px; background: rgba(183, 219, 44, 0.1); margin: 10px 0;"></div>
+        <div class="nav-item" style="color: #f23f43;" onclick="logout()">Log Out</div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-wrap">
+            <h2>My Account</h2>
+
+            <div class="user-card">
+                <div class="banner" id="bannerColor"></div>
+                <div class="pfp-wrap">
+                    <img src="logo.png" id="displayPfp" class="pfp-preview">
+                </div>
+                <div class="user-info-bar">
+                    <div>
+                        <h3 id="displayNameHeader" style="font-size: 20px;">Loading...</h3>
+                        <p id="displayBioHeader" style="color: var(--text-muted); font-size: 13px;">Lemon Core Member</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="nameInput">
+                </div>
+                <div class="form-group">
+                    <label>Profile Picture URL</label>
+                    <input type="text" id="pfpInput" placeholder="https://example.com/image.png">
+                </div>
+                <div class="form-group">
+                    <label>About Me</label>
+                    <textarea id="bioInput" rows="3"></textarea>
+                </div>
+                <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="close-btn">X</a>
+
+    <script>
+        function loadData() {
+            const name = localStorage.getItem("currentUser") || "Guest User";
+            const pfp = localStorage.getItem("userPfp") || "logo.png";
+            const bio = localStorage.getItem("userBio") || "Welcome to my profile!";
+
+            document.getElementById('nameInput').value = name;
+            document.getElementById('displayNameHeader').innerText = name;
+            document.getElementById('pfpInput').value = pfp !== "logo.png" ? pfp : "";
+            document.getElementById('displayPfp').src = pfp;
+            document.getElementById('bioInput').value = bio;
+            document.getElementById('displayBioHeader').innerText = bio;
+        }
+
+        function saveProfile() {
+            const newName = document.getElementById('nameInput').value;
+            const newPfp = document.getElementById('pfpInput').value;
+            const newBio = document.getElementById('bioInput').value;
+
+            if(newName.trim() === "") {
+                alert("Username cannot be empty!");
+                return;
+            }
+
+            localStorage.setItem("currentUser", newName);
+            localStorage.setItem("userBio", newBio);
+            if(newPfp.trim() !== "") {
+                localStorage.setItem("userPfp", newPfp);
+            }
+
+            alert("Profile Updated Successfully!");
+            location.reload();
+        }
+
+        function logout() {
+            localStorage.removeItem("currentUser");
+            window.location.href = "login.html";
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

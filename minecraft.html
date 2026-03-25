@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft SMP | Lemon Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #b7db2c; --bg: #080808; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; }
+        
+        /* Navbar */
+        nav { display: flex; justify-content: space-between; padding: 15px 5%; background: #000; border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 100; }
+        .btn-add-white { background: #fff; color: #000; padding: 8px 18px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; }
+        .music-toggle { background: none; border: 1px solid var(--accent); color: var(--accent); padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+
+        /* Server List */
+        .container { padding: 40px 8%; }
+        .server-item { 
+            background: rgba(255,255,255,0.02); border: 1px solid #222; 
+            padding: 20px; border-radius: 15px; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .s-info { display: flex; gap: 20px; align-items: center; }
+        .s-logo { width: 60px; height: 60px; border-radius: 10px; background: #111; border: 1px solid #333; }
+        .btn-copy { background: #111; color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; border-radius: 5px; cursor: pointer; }
+
+        /* Modal / Form (Real UI from your Image) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 500; justify-content: center; align-items: center; }
+        .modal-box { background: #f0f0f0; color: #333; padding: 25px; border-radius: 8px; width: 450px; border: 3px solid var(--accent); }
+        .f-row { display: flex; align-items: center; border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .f-row label { width: 130px; font-weight: bold; font-size: 13px; }
+        .f-row input { flex: 1; border: 1px solid #ccc; padding: 6px; }
+        .captcha { background: #fff; padding: 10px; margin: 15px 0; display: flex; align-items: center; gap: 10px; font-size: 12px; border: 1px solid #ddd; }
+        .btn-submit { width: 100%; padding: 10px; background: #ddd; border: 2px solid #555; font-weight: bold; cursor: pointer; }
+        .btn-submit:hover { background: var(--accent); border-color: #000; }
+    </style>
+</head>
+<body>
+
+    <audio id="myMusic" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+    <nav>
+        <button class="btn-add-white" onclick="showModal()">+ ADD SERVER</button>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="music-toggle" onclick="toggleMusic()" id="mBtn">MUSIC: OFF</button>
+            <span style="font-size:12px; color:var(--accent); cursor:pointer;" onclick="alert('Profile Edit: Mahin')">MY PROFILE</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 style="margin-bottom:20px;">Minecraft <span style="color:var(--accent)">World List</span></h2>
+        <div id="realServerList">
+            <div class="server-item">
+                <div class="s-info">
+                    <img src="logo.png" class="s-logo">
+                    <div>
+                        <h3 style="color:var(--accent)">Lemon SMP</h3>
+                        <p style="font-size:11px; color:#666;">IP: play.lemoncore.com | Port: 19132</p>
+                    </div>
+                </div>
+                <div>
+                    <span style="color:var(--accent); font-size:12px; margin-right:15px;">● ONLINE</span>
+                    <button class="btn-copy" onclick="navigator.clipboard.writeText('play.lemoncore.com'); alert('IP Copied!')">COPY IP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addModal">
+        <div class="modal-box">
+            <h3 style="text-align:center; margin-bottom:15px;">Register Your Server</h3>
+            <div class="f-row"><label>Server Name:</label><input type="text" id="n"></div>
+            <div class="f-row"><label>Java IP:</label><input type="text" id="i"></div>
+            <div class="f-row"><label>Bedrock IP/Port:</label><input type="text" id="p"></div>
+            <div class="f-row"><label>Logo URL:</label><input type="text" id="l" placeholder="https://..."></div>
+            
+            <div class="captcha">
+                <input type="checkbox" id="h"> <label>I am a Human Lemon 🍋</label>
+            </div>
+            
+            <button class="btn-submit" onclick="addServer()">ADD SERVER</button>
+            <p onclick="showModal()" style="text-align:center; color:red; cursor:pointer; font-size:11px; margin-top:10px;">Cancel</p>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            const m = document.getElementById('addModal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function addServer() {
+            const name = document.getElementById('n').value;
+            const ip = document.getElementById('i').value;
+            const logo = document.getElementById('l').value || 'logo.png';
+            const human = document.getElementById('h').checked;
+
+            if(!name || !ip || !human) { alert("Please fill all and check Human!"); return; }
+
+            const list = document.getElementById('realServerList');
+            const html = `
+                <div class="server-item">
+                    <div class="s-info">
+                        <img src="${logo}" class="s-logo" onerror="this.src='logo.png'">
+                        <div>
+                            <h3 style="color:var(--accent)">${name}</h3>
+                            <p style="font-size:11px; color:#666;">IP: ${ip}</p>
+                        </div>
+                    </div>
+                    <div><span style="color:white; font-size:12px;">DONE ✓</span></div>
+                </div>
+            `;
+            list.innerHTML = html + list.innerHTML;
+            alert("DONE! Server added.");
+            showModal();
+        }
+
+        function toggleMusic() {
+            const m = document.getElementById('myMusic');
+            const b = document.getElementById('mBtn');
+            if(m.paused) { m.play(); b.innerText = "MUSIC: ON"; }
+            else { m.pause(); b.innerText = "MUSIC: OFF"; }
+        }
+    </script>
+</body>
+</html>

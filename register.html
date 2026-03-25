@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | Lemon Core</title>
+    <style>
+        body { margin: 0; background: #000; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .box { background: #111; padding: 40px; border-radius: 15px; border: 1px solid #f1c40f; text-align: center; width: 320px; }
+        input { width: 90%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; }
+        .btn { background: #f1c40f; color: black; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2 style="color:#f1c40f;">Join Lemon Core</h2>
+        <input type="text" id="regUser" placeholder="Choose Username">
+        <input type="password" id="regPass" placeholder="Choose Password">
+        <button class="btn" onclick="register()">Create Account</button>
+        <p style="font-size:12px; margin-top:15px;">Already a member? <a href="login.html" style="color:#f1c40f;">Login</a></p>
+    </div>
+
+    <script>
+        function register() {
+            const u = document.getElementById('regUser').value;
+            const p = document.getElementById('regPass').value;
+            if(!u || !p) return alert("Fill all fields!");
+
+            let users = JSON.parse(localStorage.getItem("userDB") || "[]");
+            users.push({username: u, password: p, time: new Date().toLocaleString()});
+            localStorage.setItem("userDB", JSON.stringify(users));
+
+            alert("Registration Successful!");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

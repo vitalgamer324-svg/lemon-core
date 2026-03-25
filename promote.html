@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promote | Lemon Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #080808; --accent: #b7db2c; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; }
+        nav { display: flex; justify-content: space-between; padding: 20px 8%; background: #000; border-bottom: 2px solid var(--accent); }
+        .nav-links a { color: #888; text-decoration: none; margin-left: 20px; font-weight: bold; }
+        
+        .promo-container { max-width: 800px; margin: 50px auto; padding: 40px; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        h1 { font-family: 'Space Grotesk'; color: var(--accent); text-align: center; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #888; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 12px; background: #111; border: 1px solid #222; color: white; border-radius: 8px; outline: none; }
+        input:focus { border-color: var(--accent); }
+        
+        .btn-submit { width: 100%; padding: 15px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .btn-submit:hover { background: #fff; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" style="color:var(--accent); text-decoration:none; font-weight:900;">LEMON CORE</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="minecraft.html">Minecraft</a>
+            <a href="games.html">Games</a>
+        </div>
+    </nav>
+
+    <div class="promo-container">
+        <h1>Promote Your <span style="color:white">Content</span></h1>
+        <p style="text-align:center; color:#555; margin-bottom:30px;">Grow your audience with Lemon Core community.</p>
+        
+        <form id="promoForm">
+            <div class="form-group">
+                <label>Channel/Profile Name</label>
+                <input type="text" placeholder="Your Name" required>
+            </div>
+            <div class="form-group">
+                <label>Platform</label>
+                <select>
+                    <option>YouTube</option>
+                    <option>TikTok</option>
+                    <option>Twitch</option>
+                    <option>Facebook</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Link (URL)</label>
+                <input type="url" placeholder="https://youtube.com/..." required>
+            </div>
+            <button type="submit" class="btn-submit">Submit for Review</button>
+        </form>
+    </div>
+</body>
+</html>
