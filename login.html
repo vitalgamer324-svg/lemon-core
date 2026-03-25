@@ -22,14 +22,14 @@
             backdrop-filter: blur(15px);
             padding: 40px;
             border-radius: 20px;
-            border: 1px solid rgba(241, 196, 15, 0.2);
+            border: 1px solid rgba(183, 219, 44, 0.2);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
             width: 380px;
             text-align: center;
         }
 
         .login-card h2 {
-            color: #f1c40f;
+            color: #b7db2c;
             font-size: 28px;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -51,12 +51,12 @@
             transition: 0.3s;
         }
 
-        input:focus { border-color: #f1c40f; background: rgba(255, 255, 255, 0.12); }
+        input:focus { border-color: #b7db2c; background: rgba(255, 255, 255, 0.12); }
 
         .login-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(45deg, #f1c40f, #f39c12);
+            background: #b7db2c;
             border: none;
             border-radius: 8px;
             color: black;
@@ -68,7 +68,7 @@
 
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
+            box-shadow: 0 5px 15px rgba(183, 219, 44, 0.4);
         }
 
         .error-msg {
@@ -79,7 +79,7 @@
         }
 
         .footer-links { margin-top: 25px; font-size: 13px; color: #888; }
-        .footer-links a { color: #f1c40f; text-decoration: none; font-weight: 600; }
+        .footer-links a { color: #b7db2c; text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -95,7 +95,7 @@
             <input type="password" id="passInput" placeholder="Password">
         </div>
 
-        <button class="login-btn" onclick="handleAuth()">Login Now</button>
+        <button class="login-btn" id="loginBtn" onclick="handleAuth()">Login Now</button>
         
         <p id="errorBox" class="error-msg">Invalid Username or Password!</p>
 
@@ -104,35 +104,93 @@
         </div>
     </div>
 
-    <script>
-        function handleAuth() {
-            const u = document.getElementById('userInput').value;
-            const p = document.getElementById('passInput').value;
-            const err = document.getElementById('errorBox');
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
-            // 1. Check for Admin Access (Direct)
-            if(u === "admin" && p === "lemon77") {
-                localStorage.setItem("currentUser", "Admin");
-                localStorage.setItem("role", "admin");
-                window.location.href = "admin.html";
+    <script>
+        // --- FIREBASE CONFIG (Bhai, apnar details bosaite hobe) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSy...", 
+            authDomain: "lemoncorehub.firebaseapp.com",
+            databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com",
+            projectId: "lemoncorehub",
+            storageBucket: "lemoncorehub.appspot.com",
+            messagingSenderId: "...",
+            appId: "..."
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        async function handleAuth() {
+            const u = document.getElementById('userInput').value.trim();
+            const p = document.getElementById('passInput').value.trim();
+            const err = document.getElementById('errorBox');
+            const btn = document.getElementById('loginBtn');
+
+            if(!u || !p) {
+                showError("Bhai, username ar pass den!");
                 return;
             }
 
-            // 2. Check Member List from LocalStorage (Joiniing 'register.html' data)
-            let userDB = JSON.parse(localStorage.getItem("userDB") || "[]");
-            
-            // Find if user exists
-            let validUser = userDB.find(user => user.username === u && user.password === p);
+            btn.innerText = "Checking...";
+            btn.disabled = true;
 
-            if(validUser) {
-                localStorage.setItem("currentUser", u);
-                localStorage.setItem("role", "member");
-                window.location.href = "index.html";
-            } else {
-                // Show Error
-                err.style.display = "block";
-                setTimeout(() => { err.style.display = "none"; }, 3000);
+            // 1. ADMIN OVERRIDE (For Mahin)
+            if(u.toLowerCase() === "mahin" && p === "lemon77") {
+                saveAndRedirect("Mahin", "Admin");
+                return;
             }
+
+            // 2. CHECK DATABASE FOR USER
+            db.ref('users/' + u).once('value', (snapshot) => {
+                const userData = snapshot.val();
+
+                if(userData) {
+                    // Check Password (Basic check)
+                    if(userData.password === p) {
+                        // Check if Banned
+                        if(userData.status === "Banned") {
+                            showError("Apni ei server theke BANNED!");
+                            btn.innerText = "Login Now";
+                            btn.disabled = false;
+                        } else {
+                            saveAndRedirect(u, userData.role || "Member");
+                        }
+                    } else {
+                        showError("Password hoy nai!");
+                        resetBtn();
+                    }
+                } else {
+                    // USER NOT FOUND (Automatic Registration logic)
+                    // Bhai, eikhane apni chaitle register-e pathate paren ba auto-add korte paren
+                    showError("Account pawa jay nai! Register koren.");
+                    resetBtn();
+                }
+            });
+        }
+
+        function saveAndRedirect(user, role) {
+            localStorage.setItem("currentUser", user);
+            localStorage.setItem("role", role);
+            
+            // Database-e login time update kora (Optional)
+            db.ref('users/' + user).update({ lastLogin: new Date().toLocaleString() });
+
+            window.location.href = (role === "Admin") ? "admin.html" : "index.html";
+        }
+
+        function showError(msg) {
+            const err = document.getElementById('errorBox');
+            err.innerText = msg;
+            err.style.display = "block";
+            setTimeout(() => { err.style.display = "none"; }, 3000);
+        }
+
+        function resetBtn() {
+            const btn = document.getElementById('loginBtn');
+            btn.innerText = "Login Now";
+            btn.disabled = false;
         }
     </script>
 
