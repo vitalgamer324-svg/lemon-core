@@ -53,8 +53,10 @@
 
         input:focus { border-color: #b7db2c; background: rgba(255, 255, 255, 0.12); }
 
+        .auth-buttons { display: flex; gap: 10px; }
+
         .login-btn {
-            width: 100%;
+            flex: 1;
             padding: 14px;
             background: #b7db2c;
             border: none;
@@ -71,6 +73,18 @@
             box-shadow: 0 5px 15px rgba(183, 219, 44, 0.4);
         }
 
+        .register-btn {
+            flex: 1;
+            padding: 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            color: #b7db2c;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
         .error-msg {
             color: #ff4757;
             font-size: 13px;
@@ -78,37 +92,35 @@
             display: none;
         }
 
-        .footer-links { margin-top: 25px; font-size: 13px; color: #888; }
-        .footer-links a { color: #b7db2c; text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
         <h2>Lemon Core</h2>
-        <p>Login to Access Gaming Portal</p>
+        <p>Login or Register for Gaming Portal</p>
 
         <div class="input-group">
-            <input type="text" id="userInput" placeholder="Username">
+            <input type="text" id="userInput" placeholder="Username (Unique)">
         </div>
         <div class="input-group">
-            <input type="password" id="passInput" placeholder="Password">
+            <input type="password" id="passInput" placeholder="Password (4+ chars)">
         </div>
 
-        <button class="login-btn" id="loginBtn" onclick="handleAuth()">Login Now</button>
+        <div class="auth-buttons">
+            <button class="login-btn" id="loginBtn" onclick="handleAuth('login')">Login</button>
+            <button class="register-btn" onclick="handleAuth('register')">Register</button>
+        </div>
         
-        <p id="errorBox" class="error-msg">Invalid Username or Password!</p>
-
-        <div class="footer-links">
-            Don't have an account? <a href="register.html">Register Here</a>
-        </div>
+        <p id="errorBox" class="error-msg">Error message...</p>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
 
     <script>
-        // --- FIREBASE CONFIG (Bhai, apnar details bosaite hobe) ---
+        // --- MAHIN: APNAR REAL CONFIG EIKHANE BOSHABEN ---
         const firebaseConfig = {
             apiKey: "AIzaSy...", 
             authDomain: "lemoncorehub.firebaseapp.com",
@@ -121,51 +133,61 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const auth = firebase.auth(); 
 
-        async function handleAuth() {
+        async function handleAuth(type) {
             const u = document.getElementById('userInput').value.trim();
             const p = document.getElementById('passInput').value.trim();
-            const err = document.getElementById('errorBox');
             const btn = document.getElementById('loginBtn');
 
-            if(!u || !p) {
-                showError("Bhai, username ar pass den!");
+            if(u.length < 3 || p.length < 4) {
+                showError("Username min 3, Password min 4 chars den!");
                 return;
             }
 
-            btn.innerText = "Checking...";
-            btn.disabled = true;
-
-            // 1. ADMIN OVERRIDE (For Mahin)
+            // --- ADMIN OVERRIDE (Master Logic charai) ---
             if(u.toLowerCase() === "mahin" && p === "lemon77") {
                 saveAndRedirect("Mahin", "Admin");
                 return;
             }
 
-            // 2. CHECK DATABASE FOR USER
+            btn.disabled = true;
+
+            // Simple Password Check to show "Account not found" fix
             db.ref('users/' + u).once('value', (snapshot) => {
                 const userData = snapshot.val();
 
-                if(userData) {
-                    // Check Password (Basic check)
-                    if(userData.password === p) {
-                        // Check if Banned
+                if(type === 'login') {
+                    // --- LOGIN LOGIC ---
+                    if(userData && userData.password === p) {
                         if(userData.status === "Banned") {
-                            showError("Apni ei server theke BANNED!");
-                            btn.innerText = "Login Now";
-                            btn.disabled = false;
+                            showError("BANNED: Admin support contact koren.");
+                            resetBtn();
                         } else {
                             saveAndRedirect(u, userData.role || "Member");
                         }
                     } else {
-                        showError("Password hoy nai!");
+                        showError("Username ba Password hoy nai!");
                         resetBtn();
                     }
                 } else {
-                    // USER NOT FOUND (Automatic Registration logic)
-                    // Bhai, eikhane apni chaitle register-e pathate paren ba auto-add korte paren
-                    showError("Account pawa jay nai! Register koren.");
-                    resetBtn();
+                    // --- REGISTER LOGIC (Automatic fix for "Account Not Found") ---
+                    if(userData) {
+                        showError("Username already taken! Choose another.");
+                        resetBtn();
+                    } else {
+                        btn.innerText = "Creating Account...";
+                        // Automatic Registration with Firebase Database
+                        db.ref('users/' + u).set({
+                            password: p,
+                            role: "Member",
+                            status: "Active",
+                            joined: new Date().toLocaleDateString()
+                        }).then(() => {
+                            alert("Account created for "+u+"! Now click 'Login'.");
+                            resetBtn();
+                        });
+                    }
                 }
             });
         }
@@ -173,10 +195,7 @@
         function saveAndRedirect(user, role) {
             localStorage.setItem("currentUser", user);
             localStorage.setItem("role", role);
-            
-            // Database-e login time update kora (Optional)
             db.ref('users/' + user).update({ lastLogin: new Date().toLocaleString() });
-
             window.location.href = (role === "Admin") ? "admin.html" : "index.html";
         }
 
@@ -189,10 +208,9 @@
 
         function resetBtn() {
             const btn = document.getElementById('loginBtn');
-            btn.innerText = "Login Now";
+            btn.innerText = "Login";
             btn.disabled = false;
         }
     </script>
-
 </body>
 </html>
