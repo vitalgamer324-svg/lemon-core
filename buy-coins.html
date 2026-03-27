@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Top-up | Lemon Core</title>
+    <style>
+        body { background: #090909; color: white; font-family: 'Outfit'; text-align: center; padding: 50px; }
+        .pack { background: #111; padding: 30px; border-radius: 15px; border: 1px solid #222; width: 250px; display: inline-block; margin: 15px; }
+        .btn-buy { background: #b7db2c; color: black; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: 800; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🪙 BUY <span style="color:#b7db2c">COINS</span></h1>
+    <div class="pack">
+        <h2>5,000</h2>
+        <p>Price: 50 BDT</p>
+        <button class="btn-buy" onclick="req(5000, '50 BDT')">Request</button>
+    </div>
+    <div class="pack">
+        <h2>50,000</h2>
+        <p>Price: 400 BDT</p>
+        <button class="btn-buy" onclick="req(50000, '400 BDT')">Request</button>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyB5sjXvfgR63GKMbLt8kkC2Ys-2B78rjGE", authDomain: "lemoncorehub.firebaseapp.com", databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com", projectId: "lemoncorehub", appId: "1:525738244860:web:80f017ad81ddb675d83579" };
+        firebase.initializeApp(firebaseConfig);
+        function req(amt, price) {
+            const user = firebase.auth().currentUser;
+            if(!user) return alert("Login First!");
+            firebase.database().ref('coin_requests').push({ uid: user.uid, username: user.displayName || "User", amount: amt, price: price }).then(() => alert("✅ Sent!"));
+        }
+    </script>
+</body>
+</html>

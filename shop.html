@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lemon Shop | Fixed Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Outfit:wght@400;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root { --accent: #b7db2c; --bg: #090909; --card: #111; }
+        body { background: var(--bg); color: white; font-family: 'Outfit'; margin: 0; padding-bottom: 100px; }
+        
+        /* Fixed Top Header */
+        .shop-header { 
+            background: #000; padding: 20px 8%; display: flex; 
+            justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000;
+        }
+        .bal-box { 
+            background: rgba(183, 219, 44, 0.1); padding: 10px 20px; 
+            border-radius: 10px; border: 1px solid var(--accent); 
+            color: var(--accent); font-weight: 800; font-family: 'Space Grotesk';
+        }
+
+        /* Container & Grid */
+        .container { padding: 30px 8%; }
+        .category-title { 
+            font-family: 'Space Grotesk'; font-size: 26px; color: var(--accent); 
+            margin: 40px 0 20px; text-transform: uppercase; letter-spacing: 2px;
+            border-left: 5px solid var(--accent); padding-left: 15px;
+        }
+        .item-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 20px; 
+        }
+
+        /* Item Card */
+        .item-card { 
+            background: var(--card); border: 1px solid #222; padding: 25px; 
+            border-radius: 20px; text-align: center; transition: 0.3s ease;
+        }
+        .item-card:hover { border-color: var(--accent); transform: translateY(-8px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .icon { font-size: 45px; display: block; margin-bottom: 15px; }
+        .name { font-weight: 800; font-size: 18px; color: #fff; height: 45px; display: block; }
+        .price { color: var(--accent); font-weight: 900; margin: 15px 0; display: block; font-size: 20px; }
+        
+        .buy-btn { 
+            width: 100%; background: #1a1a1a; color: white; border: 1px solid #333; 
+            padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 800; 
+            text-transform: uppercase; transition: 0.3s;
+        }
+        .buy-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="shop-header">
+    <h1 style="font-family:'Space Grotesk'; margin:0; font-size: 24px;">LEMON <span style="color:var(--accent)">STORE</span></h1>
+    <div class="bal-box">💰 WALLET: <span id="myBal">0</span></div>
+</div>
+
+<div class="container" id="shopContent">
+    </div>
+
+<script>
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = { apiKey: "AIzaSyB5sjXvfgR63GKMbLt8kkC2Ys-2B78rjGE", authDomain: "lemoncorehub.firebaseapp.com", databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com", projectId: "lemoncorehub", appId: "1:525738244860:web:80f017ad81ddb675d83579" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+    let userCoins = 0;
+
+    // --- MEGA ITEM LIST (100+ Logic) ---
+    const shopItems = [
+        { id: 'glow_lime', name: 'Neon Lime Glow', price: 5000, icon: '✨', cat: 'Premium Upgrades' },
+        { id: 'glow_pink', name: 'Nitro Pink Glow', price: 25000, icon: '💎', cat: 'Premium Upgrades' },
+        { id: 'badge_verify', name: 'Official Verified', price: 15000, icon: '✅', cat: 'Premium Upgrades' },
+        { id: 'role_elite', name: 'Elite Member Rank', price: 50000, icon: '👑', cat: 'Ranks' },
+        
+        { id: 'ore_dia', name: 'Diamond Ore', price: 5000, icon: '💎', cat: 'Minecraft Ores' },
+        { id: 'ore_gold', name: 'Gold Ore', price: 2000, icon: '🪙', cat: 'Minecraft Ores' },
+        { id: 'ore_iron', name: 'Iron Ore', price: 800, icon: '⛓️', cat: 'Minecraft Ores' },
+        { id: 'ore_nether', name: 'Netherite Scrap', price: 15000, icon: '🍫', cat: 'Minecraft Ores' }
+    ];
+
+    // Loop for 100+ Generic Items
+    for(let i=1; i<=95; i++) {
+        shopItems.push({
+            id: 'item_'+i,
+            name: 'Item #' + i + ' Crate',
+            price: 50 * i,
+            icon: '📦',
+            cat: 'General Items'
+        });
+    }
+
+    // --- RENDER FUNCTION ---
+    function renderShop() {
+        const display = document.getElementById('shopContent');
+        let currentCategory = "";
+        let html = "";
+
+        shopItems.forEach(item => {
+            if(item.cat !== currentCategory) {
+                if(currentCategory !== "") html += `</div>`; // Close previous grid
+                currentCategory = item.cat;
+                html += `<div class="category-title">${currentCategory}</div><div class="item-grid">`;
+            }
+
+            html += `
+                <div class="item-card">
+                    <span class="icon">${item.icon}</span>
+                    <span class="name">${item.name}</span>
+                    <span class="price">💰 ${item.price.toLocaleString()}</span>
+                    <button class="buy-btn" onclick="processBuy('${item.id}', ${item.price}, '${item.name}')">Purchase</button>
+                </div>
+            `;
+        });
+        display.innerHTML = html + `</div>`;
+    }
+
+    // --- FIREBASE SYNC ---
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            db.ref('users/' + user.uid + '/coins').on('value', snap => {
+                userCoins = snap.val() || 0;
+                document.getElementById('myBal').innerText = userCoins.toLocaleString();
+            });
+            renderShop();
+        } else { window.location.href = "login.html"; }
+    });
+
+    // --- BUY LOGIC ---
+    function processBuy(id, price, name) {
+        if(userCoins >= price) {
+            if(confirm("Confirm Purchase: " + name + "?")) {
+                const uid = auth.currentUser.uid;
+                let updates = { coins: userCoins - price };
+
+                // Handle Specific Special Items
+                if(id === 'glow_lime') updates.theme = 'cyber-lime';
+                if(id === 'glow_pink') { updates.theme = 'nitro-boost'; updates.hasNitro = true; }
+                if(id === 'badge_verify') updates.isVerified = true;
+                if(id === 'role_elite') updates.role = 'ELITE';
+
+                db.ref('users/' + uid).update(updates).then(() => {
+                    alert("🎉 Item Added to Profile!");
+                });
+            }
+        } else {
+            alert("❌ Not enough coins! Play games to earn more.");
+        }
+    }
+</script>
+</body>
+</html>

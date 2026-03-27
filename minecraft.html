@@ -2,126 +2,191 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft SMP | Lemon Core</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <title>Minecraft S2 | Premium Server List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&family=Poppins:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
     <style>
-        :root { --accent: #b7db2c; --bg: #080808; }
-        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; }
+        :root { --accent: #b7db2c; --bg: #030303; --card: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.08); }
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { background: var(--bg); color: white; font-family: 'Poppins'; margin: 0; padding-bottom: 50px; }
         
-        /* Navbar */
-        nav { display: flex; justify-content: space-between; padding: 15px 5%; background: #000; border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 100; }
-        .btn-add-white { background: #fff; color: #000; padding: 8px 18px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; }
-        .music-toggle { background: none; border: 1px solid var(--accent); color: var(--accent); padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+        /* Navigation */
+        nav { padding: 25px 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 99; }
+        .logo { font-family: 'Space Grotesk'; font-size: 26px; color: var(--accent); text-decoration: none; font-weight: 700; letter-spacing: 1px; }
 
-        /* Server List */
-        .container { padding: 40px 8%; }
-        .server-item { 
-            background: rgba(255,255,255,0.02); border: 1px solid #222; 
-            padding: 20px; border-radius: 15px; margin-bottom: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .s-info { display: flex; gap: 20px; align-items: center; }
-        .s-logo { width: 60px; height: 60px; border-radius: 10px; background: #111; border: 1px solid #333; }
-        .btn-copy { background: #111; color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; border-radius: 5px; cursor: pointer; }
+        /* Announcement Section */
+        #announcementBar { display: none; background: #000; border: 2px solid var(--accent); margin: 20px 8% 0; padding: 20px; border-radius: 15px; text-align: left; }
+        .ann-tag { background: var(--accent); color: #000; padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
 
-        /* Modal / Form (Real UI from your Image) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 500; justify-content: center; align-items: center; }
-        .modal-box { background: #f0f0f0; color: #333; padding: 25px; border-radius: 8px; width: 450px; border: 3px solid var(--accent); }
-        .f-row { display: flex; align-items: center; border-bottom: 1px solid #ddd; padding: 10px 0; }
-        .f-row label { width: 130px; font-weight: bold; font-size: 13px; }
-        .f-row input { flex: 1; border: 1px solid #ccc; padding: 6px; }
-        .captcha { background: #fff; padding: 10px; margin: 15px 0; display: flex; align-items: center; gap: 10px; font-size: 12px; border: 1px solid #ddd; }
-        .btn-submit { width: 100%; padding: 10px; background: #ddd; border: 2px solid #555; font-weight: bold; cursor: pointer; }
-        .btn-submit:hover { background: var(--accent); border-color: #000; }
+        /* Page Layout */
+        .hub-hero { padding: 80px 8% 40px; text-align: center; }
+        .hub-hero h1 { font-family: 'Space Grotesk'; font-size: clamp(40px, 8vw, 80px); margin: 0; font-weight: 900; text-transform: uppercase; line-height: 1; }
+        .hub-hero span { color: var(--accent); }
+
+        .btn-premium { margin-top: 30px; padding: 15px 40px; background: var(--accent); color: black; border: none; border-radius: 50px; font-weight: 900; font-family: 'Space Grotesk'; cursor: pointer; transition: 0.4s; text-transform: uppercase; font-size: 14px; }
+        .btn-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(183,219,44,0.4); }
+
+        /* --- SERVER LIST --- */
+        .list-container { padding: 0 8%; margin-top: 60px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        
+        /* Professional Premium Card */
+        .premium-card { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 20px; position: relative; overflow: hidden; }
+        .premium-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .card-glow { position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: var(--accent); filter: blur(100px); opacity: 0.1; pointer-events: none; }
+        
+        /* Rank System shoho */
+        .rank-badge { background: #000; color: var(--accent); font-family: 'Space Grotesk'; font-size: 24px; font-weight: 900; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; position: absolute; top: 15px; left: 15px; border: 2px solid var(--accent); box-shadow: 0 0 10px rgba(183,219,44,0.3); }
+
+        .card-header { display: flex; align-items: center; gap: 20px; margin-top: 10px; }
+        .server-logo { height: 60px; width: 60px; border-radius: 12px; border: 1px solid #333; }
+        .server-banner { height: 120px; width: 100%; border-radius: 15px; object-fit: cover; border: 1px solid #222; margin-top: 10px; }
+        
+        .server-title { font-family: 'Space Grotesk'; font-size: 22px; color: #fff; margin: 0; }
+        .server-ip { background: #111; padding: 10px 15px; border-radius: 8px; font-family: monospace; font-size: 14px; color: var(--accent); cursor: pointer; width: 100%; text-align: center; border: 1px solid #333; }
+        .server-ip:hover { border-color: var(--accent); }
+
+        .copy-info { font-size: 11px; color: #555; text-transform: uppercase; text-align: center; margin-top: -15px; }
+
+        /* --- SUBMISSION FORM --- */
+        .submission-section { padding: 80px 8%; background: #050505; margin-top: 100px; border-top: 1px solid var(--border); text-align: center; }
+        .submission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 50px; text-align: left; }
+        input, textarea, select { width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 15px; border-radius: 12px; color: #fff; outline: none; font-size: 14px; margin-bottom: 20px; }
+        input:focus { border-color: var(--accent); }
     </style>
 </head>
 <body>
 
-    <audio id="myMusic" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
-
     <nav>
-        <button class="btn-add-white" onclick="showModal()">+ ADD SERVER</button>
-        <div style="display:flex; align-items:center; gap:15px;">
-            <button class="music-toggle" onclick="toggleMusic()" id="mBtn">MUSIC: OFF</button>
-            <span style="font-size:12px; color:var(--accent); cursor:pointer;" onclick="alert('Profile Edit: Mahin')">MY PROFILE</span>
-        </div>
+        <a href="index.html" class="logo">LEMON CORE S2</a>
     </nav>
 
-    <div class="container">
-        <h2 style="margin-bottom:20px;">Minecraft <span style="color:var(--accent)">World List</span></h2>
-        <div id="realServerList">
-            <div class="server-item">
-                <div class="s-info">
-                    <img src="logo.png" class="s-logo">
-                    <div>
-                        <h3 style="color:var(--accent)">Lemon SMP</h3>
-                        <p style="font-size:11px; color:#666;">IP: play.lemoncore.com | Port: 19132</p>
-                    </div>
-                </div>
-                <div>
-                    <span style="color:var(--accent); font-size:12px; margin-right:15px;">● ONLINE</span>
-                    <button class="btn-copy" onclick="navigator.clipboard.writeText('play.lemoncore.com'); alert('IP Copied!')">COPY IP</button>
-                </div>
-            </div>
-        </div>
+    <div id="announcementBar">
+        <span class="ann-tag">S2 UPDATE</span>
+        <h3 id="displayTitle" style="font-family: 'Space Grotesk'; margin-bottom: 5px;">Headline</h3>
+        <p id="displayMsg" style="margin: 0; color: #aaa; font-size: 14px;"></p>
     </div>
 
-    <div class="modal" id="addModal">
-        <div class="modal-box">
-            <h3 style="text-align:center; margin-bottom:15px;">Register Your Server</h3>
-            <div class="f-row"><label>Server Name:</label><input type="text" id="n"></div>
-            <div class="f-row"><label>Java IP:</label><input type="text" id="i"></div>
-            <div class="f-row"><label>Bedrock IP/Port:</label><input type="text" id="p"></div>
-            <div class="f-row"><label>Logo URL:</label><input type="text" id="l" placeholder="https://..."></div>
-            
-            <div class="captcha">
-                <input type="checkbox" id="h"> <label>I am a Human Lemon 🍋</label>
+    <section class="hub-hero">
+        <h1>THE <span>LEMON</span> HUB</h1>
+        <p style="color: #666;">Season 2 Premium Server Directory.</p>
+        <button class="btn-premium" onclick="scrollToSubmission()">➕ Submit Your Server</button>
+    </section>
+
+    <div class="list-container">
+        <h2 style="font-family: 'Space Grotesk'; text-align: center; margin-bottom: 60px; text-transform: uppercase;">Professional Listings</h2>
+        <div id="serverList" class="grid">
             </div>
-            
-            <button class="btn-submit" onclick="addServer()">ADD SERVER</button>
-            <p onclick="showModal()" style="text-align:center; color:red; cursor:pointer; font-size:11px; margin-top:10px;">Cancel</p>
-        </div>
     </div>
+
+    <section id="submissionForm" class="submission-section">
+        <h2 style="font-family: 'Space Grotesk'; font-size: 40px; text-transform: uppercase;">Add Your <span>Server</span></h2>
+        <p style="color: #888; max-width: 600px; margin: 10px auto 0;">Type your server details below. Submit data carefully. Banners must be 800x200 or larger.</p>
+        
+        <div class="submission-grid">
+            <div>
+                <input type="text" id="sName" placeholder="Server Name (e.g. Complex Gaming)">
+                <input type="text" id="sIP" placeholder="Server IP (e.g. play.mc-complex.com)">
+                <textarea id="sDesc" rows="5" placeholder="Short description for the card..."></textarea>
+            </div>
+            <div>
+                <input type="url" id="sBanner" placeholder="URL of your Server Banner">
+                <input type="url" id="sLogo" placeholder="URL of your Server Logo">
+                <input type="text" id="sVersion" placeholder="Version (e.g. 1.21.x)">
+                <button class="btn-premium" style="width: 100%;" onclick="publishServer()">Publish Professional Listing</button>
+            </div>
+        </div>
+    </section>
 
     <script>
-        function showModal() {
-            const m = document.getElementById('addModal');
-            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        // Firebase Setup
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5sjXvfgR63GKMbLt8kkC2Ys-2B78rjGE",
+            authDomain: "lemoncorehub.firebaseapp.com",
+            databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com",
+            projectId: "lemoncorehub",
+            appId: "1:525738244860:web:80f017ad81ddb675d83579"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // 1. Submit Data (Publish)
+        function publishServer() {
+            const data = {
+                name: document.getElementById('sName').value,
+                ip: document.getElementById('sIP').value,
+                desc: document.getElementById('sDesc').value,
+                banner: document.getElementById('sBanner').value || "https://i.imgur.com/your-default-banner.jpg",
+                logo: document.getElementById('sLogo').value || "https://i.imgur.com/your-default-logo.jpg",
+                version: document.getElementById('sVersion').value || "1.21.x",
+                timestamp: Date.now()
+            };
+
+            if(!data.name || !data.ip || !data.banner) return alert("Fill data first!");
+
+            db.ref('mc_servers').push().set(data).then(() => {
+                alert("SUCCESS: Professional Listing Published!");
+                location.reload(); // Refresh to update rank
+            });
         }
 
-        function addServer() {
-            const name = document.getElementById('n').value;
-            const ip = document.getElementById('i').value;
-            const logo = document.getElementById('l').value || 'logo.png';
-            const human = document.getElementById('h').checked;
+        // 2. Real-time Sync List & Rank
+        let serverRank = 0;
+        db.ref('mc_servers').on('value', snap => {
+            const listArea = document.getElementById('serverList');
+            listArea.innerHTML = ''; // Clear old list
+            serverRank = 0;
 
-            if(!name || !ip || !human) { alert("Please fill all and check Human!"); return; }
-
-            const list = document.getElementById('realServerList');
-            const html = `
-                <div class="server-item">
-                    <div class="s-info">
-                        <img src="${logo}" class="s-logo" onerror="this.src='logo.png'">
-                        <div>
-                            <h3 style="color:var(--accent)">${name}</h3>
-                            <p style="font-size:11px; color:#666;">IP: ${ip}</p>
+            snap.forEach((childSnap) => {
+                const data = childSnap.val();
+                serverRank++;
+                
+                const card = `
+                    <div class="premium-card">
+                        <div class="card-glow"></div>
+                        <div class="rank-badge">${serverRank}</div>
+                        
+                        <div class="card-header">
+                            <img src="${data.logo}" class="server-logo">
+                            <div>
+                                <h3 class="server-title">${data.name}</h3>
+                                <span style="font-size: 11px; color: var(--accent); font-weight: 800; font-family: monospace;">${data.version}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div><span style="color:white; font-size:12px;">DONE ✓</span></div>
-                </div>
-            `;
-            list.innerHTML = html + list.innerHTML;
-            alert("DONE! Server added.");
-            showModal();
-        }
 
-        function toggleMusic() {
-            const m = document.getElementById('myMusic');
-            const b = document.getElementById('mBtn');
-            if(m.paused) { m.play(); b.innerText = "MUSIC: ON"; }
-            else { m.pause(); b.innerText = "MUSIC: OFF"; }
-        }
+                        <img src="${data.banner}" class="server-banner">
+                        <p style="color: #aaa; font-size: 13px; line-height: 1.6; margin: 0 0 10px;">${data.desc}</p>
+                        
+                        <div class="server-ip" onclick="copyText('${data.ip}')">${data.ip}</div>
+                        <p class="copy-info">Click IP to copy</p>
+                    </div>
+                `;
+                listArea.innerHTML += card;
+            });
+        });
+
+        // 3. UI Functions
+        function scrollToSubmission() { document.getElementById('submissionForm').scrollIntoView({ behavior: "smooth" }); }
+        function copyText(txt) { navigator.clipboard.writeText(txt); alert("IP Copied!"); }
+
+        // Announcement Logic (Matching Index)
+        db.ref('announcement').on('value', snap => {
+            const data = snap.val();
+            const bar = document.getElementById('announcementBar');
+            if (data && data.active) {
+                document.getElementById('displayTitle').innerText = data.title || "UPDATE";
+                document.getElementById('displayMsg').innerText = data.message || "";
+                
+                const titleEl = document.getElementById('displayTitle');
+                if (data.anim && data.anim !== 'none') titleEl.classList.add(data.anim);
+                
+                bar.style.display = "block";
+            } else {
+                bar.style.display = "none";
+            }
+        });
     </script>
 </body>
 </html>

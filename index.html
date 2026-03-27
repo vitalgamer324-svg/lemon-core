@@ -3,191 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lemon Core | Professional Gaming Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <title>Lemon Hub | Season 2 Elite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root {
-            --bg: #030303;
-            --accent: #b7db2c;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --text: #ffffff;
+        :root { --accent: #b7db2c; --bg: #030303; --card: #0d0d0d; --glass: rgba(255, 255, 255, 0.03); }
+        
+        body { 
+            background: var(--bg); color: white; font-family: 'Outfit'; margin: 0; 
+            background-image: radial-gradient(circle at 50% -20%, #1a1a1a 0%, #030303 80%);
+            min-height: 100vh; overflow-x: hidden;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; scroll-behavior: smooth; }
-        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
-
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% -20%, rgba(183, 219, 44, 0.15), transparent 50%);
-            z-index: -1; pointer-events: none;
-        }
-
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 8%; background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .logo-text { font-family: 'Space Grotesk'; font-weight: 700; color: var(--accent); font-size: 24px; letter-spacing: -1px; text-decoration: none; }
-        .nav-links { display: flex; align-items: center; gap: 25px; }
-        .nav-links a { text-decoration: none; color: #aaa; font-size: 13px; font-weight: 500; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-links a:hover { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
-        .user-info { border: 1px solid var(--accent); padding: 6px 15px; border-radius: 50px; color: var(--accent); font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; transition: 0.3s; }
-
+        /* 📢 ANNOUNCEMENT BAR (TOP) */
         .announcement-bar {
-            margin: 20px 8%; background: var(--glass); border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 20px; display: flex; align-items: center; gap: 15px;
+            background: rgba(183, 219, 44, 0.1); border-bottom: 1px solid var(--accent);
+            padding: 10px 0; overflow: hidden; white-space: nowrap; position: relative;
         }
-        .live-tag { background: var(--accent); color: #000; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 900; }
-        .announcement-msg { flex: 1; font-size: 13px; color: #ccc; overflow: hidden; white-space: nowrap; }
-
-        .chat-input-box {
-            display: flex; gap: 10px; background: rgba(255,255,255,0.05);
-            padding: 5px 15px; border-radius: 50px; border: 1px solid var(--border);
+        .announcement-content {
+            display: inline-block; padding-left: 100%; animation: scrollText 20s linear infinite;
+            color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 14px;
         }
-        .chat-input-box input {
-            background: transparent; border: none; color: white; outline: none; font-size: 12px; width: 150px;
+        @keyframes scrollText { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
+        /* HEADER */
+        header { padding: 30px 8%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Space Grotesk'; font-size: 28px; font-weight: 900; color: white; cursor: pointer; user-select: none; }
+        .logo span { color: var(--accent); }
+
+        /* 🎒 INVENTORY QUICK PREVIEW */
+        .inv-preview {
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 25px; border-radius: 50px; display: flex; gap: 15px; align-items: center;
         }
+        .inv-item { width: 30px; height: 30px; background: #111; border-radius: 5px; border: 1px solid #222; }
 
-        .hero { padding: 100px 8% 60px; text-align: center; display: flex; flex-direction: column; align-items: center; min-height: 80vh; }
-        .hero img { width: 100%; max-width: 350px; filter: drop-shadow(0 0 30px rgba(183, 219, 44, 0.2)); animation: float 6s ease-in-out infinite; margin-bottom: 30px; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        /* HERO SECTION */
+        .hero { text-align: center; padding: 60px 8% 40px; }
+        .hero h1 { font-family: 'Space Grotesk'; font-size: clamp(40px, 10vw, 80px); margin: 0; letter-spacing: -3px; }
+        .hero p { color: #555; font-size: 18px; margin-top: 10px; }
 
-        .hero h1 { font-family: 'Space Grotesk'; font-size: clamp(40px, 8vw, 80px); line-height: 0.9; text-transform: uppercase; margin-bottom: 20px; }
-        .hero h1 span { color: var(--accent); -webkit-text-stroke: 1px var(--accent); -webkit-text-fill-color: transparent; }
-        .hero p { color: #888; max-width: 600px; margin-bottom: 40px; font-size: 16px; line-height: 1.6; }
-
-        .btn-main {
-            background: var(--accent); color: #000 !important; padding: 18px 50px; border-radius: 10px;
-            text-decoration: none; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 10px 30px rgba(183, 219, 44, 0.3); transition: 0.4s; display: inline-block;
+        /* MENU GRID (NEW CARDS) */
+        .menu-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px; padding: 40px 8%; max-width: 1400px; margin: auto;
         }
-        .btn-main:hover { transform: translateY(-5px); box-shadow: 0 15px 40px var(--accent); }
-
-        .hub-section { padding: 100px 8%; }
-        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
-        .hub-card {
-            background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 40px;
-            transition: 0.4s; cursor: pointer; text-decoration: none; display: block;
+        .menu-card {
+            background: var(--card); border: 1px solid #1a1a1a; padding: 35px; border-radius: 30px;
+            text-decoration: none; color: white; position: relative; overflow: hidden;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .hub-card:hover { border-color: var(--accent); transform: translateY(-10px); }
-        .hub-card h3 { font-size: 24px; color: var(--accent); margin-bottom: 15px; }
+        .menu-card:hover { 
+            transform: translateY(-10px); border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(183, 219, 44, 0.05);
+        }
+        .menu-card i { font-size: 45px; display: block; margin-bottom: 20px; }
+        .menu-card h3 { font-family: 'Space Grotesk'; font-size: 24px; margin: 0; }
+        .menu-card p { color: #444; font-size: 14px; margin-top: 10px; line-height: 1.5; }
+        
+        /* 👑 ADMIN BUTTON (SHINY) */
+        #adminBtn { border-color: #ff4757; display: none; background: rgba(255, 71, 87, 0.02); }
 
-        footer { padding: 60px 8%; text-align: center; border-top: 1px solid var(--border); color: #444; font-size: 12px; }
-        #adminLink { display: none; color: #ff4757; border: 1px solid #ff4757; padding: 6px 15px; border-radius: 50px; text-decoration: none; font-size: 11px; font-weight: bold; }
+        /* BOTTOM STATS BAR */
+        .stats-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 40px; border-radius: 100px; display: flex; gap: 40px;
+            backdrop-filter: blur(20px); z-index: 1000;
+        }
+        .stat-val { color: var(--accent); font-weight: 900; font-family: 'Space Grotesk'; }
+
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-
-    <nav>
-        <a href="index.html" class="logo-text">LEMON<span style="color:white">CORE</span></a>
-        <div class="nav-links">
-            <a href="minecraft.html">Servers</a>
-            <a href="games.html">Games</a>
-            <a href="promote.html">Creator Hub</a>
-            <a id="adminLink" href="admin.html">ADMIN PANEL</a>
-            <a href="profile.html" class="user-info">@<span id="userDisplay">Mahin</span></a>
-        </div>
-    </nav>
-
     <div class="announcement-bar">
-        <span class="live-tag">LIVE</span>
-        <div class="announcement-msg">
-            <marquee scrollamount="6" id="announcementText">Connecting to Live Database...</marquee>
-        </div>
-        <div class="chat-input-box">
-            <input type="text" id="globalMsg" placeholder="Global Message...">
-            <button onclick="sendGlobalMsg()" style="background:none; border:none; color:var(--accent); font-weight:bold; cursor:pointer;">SEND</button>
+        <div class="announcement-content" id="noticeText">
+            LOADING SERVER ANNOUNCEMENTS... BE PATIENT... NEW UPDATES COMING SOON...
         </div>
     </div>
 
-    <section class="hero">
-        <img src="logo.png" alt="Logo">
-        <h1 id="syncHeroTitle">EVOLVE YOUR <span>GAMING</span></h1>
-        <p id="syncHeroDesc">The premium destination for Minecraft SMP enthusiasts.</p>
-        <a href="#explore" class="btn-main">Get Started</a>
-    </section>
-
-    <section id="explore" class="hub-section">
-        <div class="hub-grid">
-            <a href="minecraft.html" class="hub-card">
-                <h3>Minecraft SMP</h3>
-                <p>Browse elite Lifesteal and Survival servers.</p>
-            </a>
-            <a href="games.html" class="hub-card">
-                <h3>Roblox Zone</h3>
-                <p>Discover community-curated game scripts.</p>
-            </a>
-            <a href="promote.html" class="hub-card">
-                <h3>Creator Hub</h3>
-                <p>Grow your channel with Lemon Core.</p>
-            </a>
+    <header>
+        <div class="logo" id="adminTrigger">LEMON<span>HUB</span></div>
+        <div class="inv-preview" onclick="window.location.href='inventory.html'" title="My Inventory">
+            <span style="font-size: 12px; color: #666; font-weight: 800;">MY BAG:</span>
+            <div id="quickInv" style="display: flex; gap: 5px;">
+                <div class="inv-item"></div><div class="inv-item"></div><div class="inv-item"></div>
+            </div>
         </div>
-    </section>
+    </header>
 
-    <footer>
-        <p>&copy; 2026 LEMON CORE HUB | MASTERED BY MAHIN</p>
-    </footer>
+    <div class="hero">
+        <h1>LEMON <span style="color:var(--accent)">CORE</span> SEASON 2</h1>
+        <p>The next generation Minecraft web-hub for dedicated players.</p>
+    </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <div class="menu-grid">
+        <a href="profile.html" class="menu-card"><i>👤</i><h3>VVIP Profile</h3><p>Manage your skins, badges, and verified status.</p></a>
+        <a href="shop.html" class="menu-card"><i>🛒</i><h3>Hyper Store</h3><p>Unlock 100+ items, tools, and custom glows.</p></a>
+        <a href="gameplay.html" class="menu-card"><i>🎮</i><h3>Play & Earn</h3><p>Earn coins by catching the lemons in real-time.</p></a>
+        <a href="leaderboard.html" class="menu-card"><i>🏆</i><h3>Rich List</h3><p>See the top 10 players on the global leaderboard.</p></a>
+        <a href="daily-reward.html" class="menu-card"><i>🎡</i><h3>Daily Spin</h3><p>Spin for a chance to win up to 10,000 coins.</p></a>
+        <a href="wiki.html" class="menu-card"><i>📖</i><h3>Server Wiki</h3><p>Commands, rules, and item descriptions.</p></a>
+        <a href="settings.html" class="menu-card"><i>⚙️</i><h3>Settings</h3><p>Customize your name, avatar, and banner image.</p></a>
+        
+        <a href="admin.html" id="adminBtn" class="menu-card">
+            <i>👑</i>
+            <h3 style="color:#ff4757;">Staff Panel</h3>
+            <p>Access god-mode to manage users and items.</p>
+        </a>
+    </div>
+
+    <div class="stats-bar">
+        <div>BALANCE: <span class="stat-val">💰 <span id="uBal">0</span></span></div>
+        <div>RANK: <span class="stat-val" id="uRank">PLAYER</span></div>
+        <div>SERVER: <span style="color:#23a55a;">● ONLINE</span></div>
+    </div>
 
     <script>
-        // --- CONFIG ---
-        const firebaseConfig = {
-            apiKey: "AIzaSy...", 
-            authDomain: "lemoncorehub.firebaseapp.com",
-            databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com",
-            projectId: "lemoncorehub",
-            storageBucket: "lemoncorehub.appspot.com",
-            messagingSenderId: "...",
-            appId: "..."
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyB5sjXvfgR63GKMbLt8kkC2Ys-2B78rjGE", authDomain: "lemoncorehub.firebaseapp.com", databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com", projectId: "lemoncorehub", appId: "1:525738244860:web:80f017ad81ddb675d83579" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const currentUser = localStorage.getItem("currentUser") || "Mahin";
-        document.getElementById('userDisplay').innerText = currentUser;
-        if(currentUser === "Mahin") document.getElementById('adminLink').style.display = "block";
-
-        // 1. AUTO-RELOAD LOGIC (Update for Friends)
-        const currentAppVersion = "1.0"; 
-        db.ref('app_config/version').on('value', (snap) => {
-            if(snap.val() && snap.val() !== currentAppVersion) {
-                console.log("New Update Found! Syncing...");
-                setTimeout(() => { location.reload(); }, 1000);
+        // 🔐 SECRET ADMIN TRIGGER
+        let adminClicks = 0;
+        document.getElementById('adminTrigger').onclick = function() {
+            adminClicks++;
+            if(adminClicks === 5) {
+                let key = prompt("Developer Key Proyojon:");
+                if(key === "LEMON2026") {
+                    alert("Admin Mode Unlocked!");
+                    document.getElementById('adminBtn').style.display = 'block';
+                    localStorage.setItem('forceAdmin', 'true');
+                }
+                adminClicks = 0;
             }
-        });
+        };
 
-        // 2. HERO CONTENT SYNC
-        db.ref('app_config/hero_title').on('value', (snap) => {
-            if(snap.val()) document.getElementById('syncHeroTitle').innerHTML = snap.val();
-        });
-        db.ref('app_config/hero_desc').on('value', (snap) => {
-            if(snap.val()) document.getElementById('syncHeroDesc').innerText = snap.val();
-        });
-
-        // 3. ANNOUNCEMENT SYNC
-        db.ref('announcement').on('value', (snap) => {
-            if(snap.val()) document.getElementById('announcementText').innerText = snap.val();
-        });
-
-        // Chat Logic
-        function sendGlobalMsg() {
-            const inp = document.getElementById('globalMsg');
-            if(inp.value.trim() !== "") {
-                db.ref('chat/global').push({
-                    user: currentUser,
-                    text: inp.value,
-                    time: Date.now()
+        firebase.auth().onAuthStateChanged(user => {
+            if(user) {
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const d = snap.val() || {};
+                    document.getElementById('uBal').innerText = (d.coins || 0).toLocaleString();
+                    document.getElementById('uRank').innerText = d.role || "PLAYER";
+                    
+                    // Show Admin button if rank is ADMIN OR Secret key is used
+                    if(d.role === 'ADMIN' || localStorage.getItem('forceAdmin') === 'true') {
+                        document.getElementById('adminBtn').style.display = 'block';
+                    }
+                    
+                    db.ref('settings/notice').on('value', nSnap => {
+                        document.getElementById('noticeText').innerText = nSnap.val() || "WELCOME TO LEMON CORE! HAVE FUN!";
+                    });
                 });
-                inp.value = "";
-            }
-        }
+            } else { window.location.href = "login.html"; }
+        });
     </script>
 </body>
 </html>

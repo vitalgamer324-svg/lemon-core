@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leaderboard | Lemon Core Rich List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Outfit:wght@400;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        :root { --accent: #b7db2c; --bg: #090909; --card: #111214; --border: rgba(255,255,255,0.05); }
+        body { background: var(--bg); color: white; font-family: 'Outfit'; margin: 0; padding: 50px 8%; }
+        
+        .header { text-align: center; margin-bottom: 60px; }
+        .header h1 { font-family: 'Space Grotesk'; font-size: 50px; text-transform: uppercase; margin: 0; }
+        .header span { color: var(--accent); }
+
+        .leader-table { width: 100%; max-width: 900px; margin: 0 auto; background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+        .row { display: flex; align-items: center; padding: 20px 30px; border-bottom: 1px solid var(--border); transition: 0.3s; }
+        .row:hover { background: rgba(183, 219, 44, 0.05); }
+        
+        .rank { width: 50px; font-weight: 900; color: var(--accent); font-size: 20px; }
+        .user-info { flex-grow: 1; display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
+        .name { font-weight: 600; font-size: 18px; }
+        .coins { font-family: 'Space Grotesk'; font-weight: 700; color: var(--accent); font-size: 20px; }
+
+        /* Top 3 Special Style */
+        .row:nth-child(1) .rank { color: gold; font-size: 30px; }
+        .row:nth-child(2) .rank { color: silver; font-size: 26px; }
+        .row:nth-child(3) .rank { color: #cd7f32; font-size: 22px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>RICH <span>LEADERBOARD</span></h1>
+        <p style="color: #666;">Top 10 Richest Players in Season 2</p>
+    </div>
+
+    <div class="leader-table" id="leaderGrid">
+        </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5sjXvfgR63GKMbLt8kkC2Ys-2B78rjGE",
+            authDomain: "lemoncorehub.firebaseapp.com",
+            databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com",
+            projectId: "lemoncorehub",
+            appId: "1:525738244860:web:80f017ad81ddb675d83579"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Fetch Top 10 by Coins
+        db.ref('users').orderByChild('coins').limitToLast(10).on('value', snap => {
+            const grid = document.getElementById('leaderGrid');
+            grid.innerHTML = '';
+            let players = [];
+
+            snap.forEach(child => {
+                players.push({ id: child.key, ...child.val() });
+            });
+
+            // Reverse for highest first
+            players.reverse().forEach((p, index) => {
+                const row = `
+                    <div class="row">
+                        <div class="rank">#${index + 1}</div>
+                        <div class="user-info">
+                            <div class="avatar">${(p.displayName || 'L')[0]}</div>
+                            <div class="name">${p.displayName || 'Unknown User'}</div>
+                        </div>
+                        <div class="coins">${(p.coins || 0).toLocaleString()} 💰</div>
+                    </div>
+                `;
+                grid.innerHTML += row;
+            });
+        });
+    </script>
+</body>
+</html>

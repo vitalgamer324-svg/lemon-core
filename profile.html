@@ -2,213 +2,180 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Settings | Lemon Core</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Premium Profile | Lemon Core Elite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root {
-            /* Lemon Core Theme Colors */
-            --bg-sidebar: #0d0e0a; /* Darker with a hint of lemon */
-            --bg-main: #14150f;    /* Main background with lemon tint */
-            --bg-card: #1c1e14;
-            --text-muted: #b5bac1;
-            --accent: #b7db2c;     /* Lemon Green */
-            --white: #ffffff;
-            --lemon-glow: 0 0 20px rgba(183, 219, 44, 0.15);
+        :root { 
+            --accent: #b7db2c; 
+            --nitro: #ff73fa;
+            --verify: #00a2ed;
+            --bg: #050505; 
+            --card: #0b0b0b; 
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
         body { 
-            background: var(--bg-main); 
-            /* Subtle Lemon Gradient Background */
-            background-image: radial-gradient(circle at top right, rgba(183, 219, 44, 0.05), transparent),
-                              radial-gradient(circle at bottom left, rgba(183, 219, 44, 0.03), transparent);
-            color: var(--white); 
-            display: flex; 
-            height: 100vh; 
-            overflow: hidden; 
+            background: var(--bg); color: white; font-family: 'Outfit'; 
+            margin: 0; display: flex; justify-content: center; padding: 80px 20px;
+            background-image: radial-gradient(circle at 50% -20%, #1a1a1a 0%, #050505 80%);
         }
-
-        /* Left Sidebar */
-        .sidebar {
-            width: 280px; 
-            background: var(--bg-sidebar); 
-            padding: 60px 20px 20px 40px;
-            display: flex; 
-            flex-direction: column; 
-            gap: 5px;
-            border-right: 1px solid rgba(183, 219, 44, 0.1);
-        }
-        .sidebar-header {
-            font-size: 12px; font-weight: 700; color: var(--text-muted);
-            text-transform: uppercase; margin-bottom: 10px; padding-left: 10px;
-        }
-        .nav-item {
-            padding: 8px 10px; border-radius: 4px; color: var(--text-muted);
-            text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.2s;
-        }
-        .nav-item:hover { background: rgba(183, 219, 44, 0.1); color: var(--accent); }
-        .nav-item.active { background: var(--accent); color: #000; font-weight: 600; box-shadow: var(--lemon-glow); }
-
-        /* Main Content */
-        .main-content { flex: 1; padding: 60px 40px; overflow-y: auto; position: relative; }
-        .content-wrap { max-width: 700px; margin: 0 auto; }
-        h2 { font-family: 'Space Grotesk'; font-size: 24px; margin-bottom: 20px; color: var(--accent); text-shadow: 0 0 10px rgba(183, 219, 44, 0.3); }
 
         /* Profile Card */
-        .user-card {
-            background: var(--bg-sidebar); 
-            border-radius: 12px; 
-            overflow: hidden;
-            margin-bottom: 30px; 
-            border: 1px solid rgba(183, 219, 44, 0.2);
-            box-shadow: var(--lemon-glow);
+        .profile-card { 
+            width: 800px; background: var(--card); border-radius: 28px; 
+            border: 1px solid rgba(255,255,255,0.03); overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8); position: relative;
         }
-        .banner { height: 120px; background: var(--accent); position: relative; }
-        .pfp-wrap { position: absolute; bottom: -45px; left: 25px; }
-        .pfp-preview {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 6px solid var(--bg-sidebar); background: #111; object-fit: cover;
-        }
-        .user-info-bar { padding: 55px 25px 25px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Settings Form */
-        .settings-form { 
-            background: var(--bg-card); 
-            padding: 25px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(183, 219, 44, 0.1);
-        }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
-        
-        .form-group input, .form-group textarea {
-            width: 100%; 
-            background: #000; 
-            border: 1px solid rgba(183, 219, 44, 0.2); 
-            color: #dbdee1;
-            padding: 12px; 
-            border-radius: 6px; 
-            outline: none; 
-            font-size: 14px;
-            transition: 0.3s;
-        }
-        .form-group input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(183, 219, 44, 0.2); }
-        
-        .btn-save {
-            background: var(--accent); 
-            color: #000; 
-            border: none; 
-            padding: 12px 30px;
-            border-radius: 6px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: 0.3s;
-            text-transform: uppercase; 
-            font-size: 13px;
-            box-shadow: var(--lemon-glow);
-        }
-        .btn-save:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-        .close-btn {
-            position: fixed; top: 40px; right: 40px; width: 40px; height: 40px;
-            border: 2px solid var(--accent); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--accent); font-weight: bold; text-decoration: none;
-            transition: 0.3s;
+        /* Banner */
+        .banner { 
+            height: 240px; background: #111; background-size: cover; 
+            background-position: center; position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .close-btn:hover { background: var(--accent); color: #000; box-shadow: var(--lemon-glow); }
+
+        /* Avatar System */
+        .avatar-container {
+            position: absolute; top: 160px; left: 40px;
+            width: 150px; height: 150px; background: var(--card);
+            border-radius: 50%; padding: 8px;
+        }
+        .avatar-main {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: #1a1a1b; display: flex; align-items: center;
+            justify-content: center; font-size: 60px; font-weight: 900;
+            color: var(--accent); border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        /* Badge Logic (Boro Boro Icons) */
+        .badge-container {
+            position: absolute; top: 260px; right: 40px;
+            display: flex; gap: 12px; align-items: center;
+        }
+        .badge-item {
+            width: 32px; height: 32px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .badge-item:hover { transform: scale(1.3); }
+
+        /* Text Styling */
+        .profile-content { padding: 90px 45px 50px; }
+        .user-header { display: flex; align-items: center; gap: 10px; }
+        .user-name { 
+            font-family: 'Space Grotesk'; font-size: 38px; font-weight: 900; margin: 0; 
+            letter-spacing: -1px;
+        }
+        .verified-icon { width: 34px; height: 34px; }
+        
+        .user-tag { color: #888; font-size: 16px; margin-top: 5px; }
+
+        /* Stats Grid */
+        .stats-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; margin-top: 40px; 
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.02); padding: 25px; 
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+            text-align: center; transition: 0.3s;
+        }
+        .stat-card:hover { background: rgba(255,255,255,0.04); transform: translateY(-5px); }
+        .stat-num { 
+            display: block; font-size: 28px; font-weight: 900; 
+            font-family: 'Space Grotesk'; color: var(--accent);
+        }
+        .stat-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px; }
+
+        /* Glow Effects */
+        .glow-lime { border: 2px solid var(--accent) !important; box-shadow: 0 0 50px rgba(183, 219, 44, 0.2); }
+        .glow-nitro { border: 2px solid var(--nitro) !important; box-shadow: 0 0 50px rgba(255, 115, 250, 0.2); }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="sidebar-header">User Settings</div>
-        <div class="nav-item active">My Account</div>
-        <div class="nav-item">Profiles</div>
-        <div class="nav-item">Privacy & Safety</div>
-        <div style="height: 1px; background: rgba(183, 219, 44, 0.1); margin: 10px 0;"></div>
-        <div class="nav-item" style="color: #f23f43;" onclick="logout()">Log Out</div>
-    </div>
-
-    <div class="main-content">
-        <div class="content-wrap">
-            <h2>My Account</h2>
-
-            <div class="user-card">
-                <div class="banner" id="bannerColor"></div>
-                <div class="pfp-wrap">
-                    <img src="logo.png" id="displayPfp" class="pfp-preview">
-                </div>
-                <div class="user-info-bar">
-                    <div>
-                        <h3 id="displayNameHeader" style="font-size: 20px;">Loading...</h3>
-                        <p id="displayBioHeader" style="color: var(--text-muted); font-size: 13px;">Lemon Core Member</p>
-                    </div>
-                </div>
+    <div class="profile-card" id="mainCard">
+        <div class="banner" id="userBanner">
+            <div class="avatar-container">
+                <div class="avatar-main" id="userAvatar">L</div>
             </div>
+            
+            <div class="badge-container" id="badgeBox">
+                </div>
+        </div>
 
-            <div class="settings-form">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="nameInput">
+        <div class="profile-content">
+            <div class="user-header">
+                <h1 class="user-name" id="userName">Lemon Player</h1>
+                <div id="verifySpace"></div> </div>
+            <div class="user-tag" id="userRole">@premium_member</div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-num" id="statCoins">0</span>
+                    <span class="stat-label">Total Coins</span>
                 </div>
-                <div class="form-group">
-                    <label>Profile Picture URL</label>
-                    <input type="text" id="pfpInput" placeholder="https://example.com/image.png">
+                <div class="stat-card">
+                    <span class="stat-num" id="statRank">ROOKIE</span>
+                    <span class="stat-label">Global Rank</span>
                 </div>
-                <div class="form-group">
-                    <label>About Me</label>
-                    <textarea id="bioInput" rows="3"></textarea>
+                <div class="stat-card">
+                    <span class="stat-num">S2</span>
+                    <span class="stat-label">Active Era</span>
                 </div>
-                <button class="btn-save" onclick="saveProfile()">Save Changes</button>
             </div>
         </div>
     </div>
 
-    <a href="index.html" class="close-btn">X</a>
-
     <script>
-        function loadData() {
-            const name = localStorage.getItem("currentUser") || "Guest User";
-            const pfp = localStorage.getItem("userPfp") || "logo.png";
-            const bio = localStorage.getItem("userBio") || "Welcome to my profile!";
+        const firebaseConfig = { apiKey: "AIzaSyB5sjXvfgR63GKMbLt8kkC2Ys-2B78rjGE", authDomain: "lemoncorehub.firebaseapp.com", databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com", projectId: "lemoncorehub", appId: "1:525738244860:web:80f017ad81ddb675d83579" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-            document.getElementById('nameInput').value = name;
-            document.getElementById('displayNameHeader').innerText = name;
-            document.getElementById('pfpInput').value = pfp !== "logo.png" ? pfp : "";
-            document.getElementById('displayPfp').src = pfp;
-            document.getElementById('bioInput').value = bio;
-            document.getElementById('displayBioHeader').innerText = bio;
-        }
+        firebase.auth().onAuthStateChanged(user => {
+            if(user) {
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val() || {};
+                    
+                    // Basic Info
+                    document.getElementById('userName').innerText = data.displayName || "Lemon Hero";
+                    document.getElementById('statCoins').innerText = (data.coins || 0).toLocaleString();
+                    document.getElementById('statRank').innerText = data.role || "PLAYER";
+                    document.getElementById('userRole').innerText = "@" + (data.role || "player").toLowerCase();
 
-        function saveProfile() {
-            const newName = document.getElementById('nameInput').value;
-            const newPfp = document.getElementById('pfpInput').value;
-            const newBio = document.getElementById('bioInput').value;
+                    // 💎 Premium Theme Check
+                    const card = document.getElementById('mainCard');
+                    if(data.theme === 'cyber-lime') card.classList.add('glow-lime');
+                    if(data.theme === 'nitro-boost') card.classList.add('glow-nitro');
 
-            if(newName.trim() === "") {
-                alert("Username cannot be empty!");
-                return;
+                    // ✅ BIG VERIFIED BADGE (Boro manusder moto)
+                    const verifySpace = document.getElementById('verifySpace');
+                    verifySpace.innerHTML = '';
+                    if(data.isVerified) {
+                        verifySpace.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Twitter_Verified_Badge.svg" class="verified-icon" title="Official Verified Account">`;
+                    }
+
+                    // 🎖️ OTHER BADGES (Emoji & Premium Icons)
+                    const bBox = document.getElementById('badgeBox');
+                    bBox.innerHTML = '';
+                    
+                    if(data.role === 'ADMIN') {
+                        bBox.innerHTML += `<img src="https://cdn-icons-png.flaticon.com/512/10629/10629607.png" class="badge-item" title="Server Owner">`;
+                    }
+                    if(data.hasNitro) {
+                        bBox.innerHTML += `<img src="https://cdn-icons-png.flaticon.com/512/7501/7501066.png" class="badge-item" title="Nitro Subscriber">`;
+                    }
+                    if(data.coins > 100000) {
+                        bBox.innerHTML += `<img src="https://cdn-icons-png.flaticon.com/512/9183/9183664.png" class="badge-item" title="Millionaire Club">`;
+                    }
+
+                    // Banner & Avatar
+                    if(data.banner) document.getElementById('userBanner').style.backgroundImage = `url('${data.banner}')`;
+                    if(data.avatar) document.getElementById('userAvatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                });
             }
-
-            localStorage.setItem("currentUser", newName);
-            localStorage.setItem("userBio", newBio);
-            if(newPfp.trim() !== "") {
-                localStorage.setItem("userPfp", newPfp);
-            }
-
-            alert("Profile Updated Successfully!");
-            location.reload();
-        }
-
-        function logout() {
-            localStorage.removeItem("currentUser");
-            window.location.href = "login.html";
-        }
-
-        window.onload = loadData;
+        });
     </script>
 </body>
 </html>

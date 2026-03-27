@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lemon Hunt | Earn Coins</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root { --accent: #b7db2c; --bg: #050505; }
+        body { 
+            background: var(--bg); color: white; font-family: 'Outfit'; 
+            margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; 
+        }
+
+        /* Top Bar Stats */
+        .game-header {
+            width: 100%; padding: 20px; background: rgba(0,0,0,0.8);
+            display: flex; justify-content: space-around; font-family: 'Space Grotesk';
+            border-bottom: 1px solid #222; position: fixed; top: 0; z-index: 10;
+        }
+        .stat-box span { color: var(--accent); font-size: 22px; }
+
+        /* Game Area */
+        .game-area { width: 100vw; height: 100vh; position: relative; cursor: crosshair; }
+
+        /* The Lemon Target */
+        #target {
+            position: absolute; width: 80px; height: 80px;
+            background: var(--accent); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; cursor: pointer; user-select: none;
+            box-shadow: 0 0 30px var(--accent);
+            transition: 0.1s linear; border: 5px solid white;
+        }
+
+        /* Start Button Overlay */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100;
+        }
+        .btn-start {
+            background: var(--accent); color: black; border: none;
+            padding: 15px 40px; font-size: 20px; font-weight: 900;
+            border-radius: 10px; cursor: pointer; text-transform: uppercase;
+        }
+
+        .floating-text {
+            position: absolute; color: var(--accent); font-weight: 900;
+            animation: floatUp 0.6s forwards; pointer-events: none; font-size: 20px;
+        }
+        @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-80px); } }
+    </style>
+</head>
+<body>
+
+    <div class="game-header">
+        <div class="stat-box">TIME: <span id="timer">30</span>s</div>
+        <div class="stat-box">SCORE: <span id="score">0</span></div>
+        <div class="stat-box">WALLET: 💰 <span id="wallet">0</span></div>
+    </div>
+
+    <div id="overlay">
+        <h1 style="font-family:'Space Grotesk'; font-size: 50px;">LEMON <span style="color:var(--accent)">HUNT</span></h1>
+        <p>Catch the moving lemon to win coins!</p>
+        <button class="btn-start" onclick="startGame()">Start Game</button>
+        <a href="index.html" style="color:#444; margin-top: 20px; text-decoration: none;">Back to Hub</a>
+    </div>
+
+    <div class="game-area" id="gameArea">
+        <div id="target" style="display: none;">🍋</div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyB5sjXvfgR63GKMbLt8kkC2Ys-2B78rjGE", authDomain: "lemoncorehub.firebaseapp.com", databaseURL: "https://lemoncorehub-default-rtdb.firebaseio.com", projectId: "lemoncorehub", appId: "1:525738244860:web:80f017ad81ddb675d83579" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let currentWallet = 0;
+
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                db.ref('users/' + user.uid + '/coins').on('value', snap => {
+                    currentWallet = snap.val() || 0;
+                    document.getElementById('wallet').innerText = currentWallet.toLocaleString();
+                });
+            } else { window.location.href = "login.html"; }
+        });
+
+        const target = document.getElementById('target');
+        const scoreEl = document.getElementById('score');
+        const timerEl = document.getElementById('timer');
+
+        function moveTarget() {
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 200) + 100;
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            document.getElementById('overlay').style.display = 'none';
+            target.style.display = 'flex';
+            scoreEl.innerText = score;
+            moveTarget();
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        target.addEventListener('mousedown', (e) => {
+            if(!gameActive) return;
+            
+            score++;
+            scoreEl.innerText = score;
+            
+            // Effect
+            const fText = document.createElement('div');
+            fText.className = 'floating-text';
+            fText.innerText = "+5";
+            fText.style.left = e.pageX + 'px';
+            fText.style.top = e.pageY + 'px';
+            document.body.appendChild(fText);
+            setTimeout(() => fText.remove(), 600);
+
+            moveTarget();
+        });
+
+        function endGame() {
+            gameActive = false;
+            target.style.display = 'none';
+            
+            // Logic: 1 Score = 5 Coins
+            const wonCoins = score * 5;
+            const newTotal = currentWallet + wonCoins;
+
+            db.ref('users/' + auth.currentUser.uid).update({
+                coins: newTotal
+            }).then(() => {
+                alert(`🎮 Game Over!\nYou scored ${score} and won 💰${wonCoins} coins!`);
+                document.getElementById('overlay').style.display = 'flex';
+                document.querySelector('#overlay h1').innerText = "WELL PLAYED!";
+            });
+        }
+    </script>
+</body>
+</html>

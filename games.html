@@ -2,66 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games Zone | Lemon Core</title>
+    <title>Roblox Zone | Lemon Core</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --accent: #b7db2c; --card: rgba(255,255,255,0.02); }
-        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; }
-        nav { display: flex; justify-content: space-between; padding: 15px 8%; background: #000; border-bottom: 2px solid var(--accent); }
-        .nav-links a { color: #888; text-decoration: none; margin-left: 20px; font-weight: bold; font-size: 13px; }
-        .nav-links a:hover { color: var(--accent); }
-
-        .container { padding: 50px 8%; text-align: center; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 40px; }
-        
-        .game-card { 
-            background: var(--card); border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 20px; overflow: hidden; transition: 0.4s; padding-bottom: 20px;
-        }
-        .game-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        .game-thumb { width: 100%; height: 180px; background: #111; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #333; }
-        
-        .btn-action { 
-            display: block; width: 80%; margin: 15px auto 0; padding: 12px; 
-            background: none; border: 1px solid var(--accent); color: var(--accent); 
-            text-decoration: none; font-weight: bold; border-radius: 8px; transition: 0.3s;
-        }
-        .btn-action:hover { background: var(--accent); color: #000; }
+        :root { --bg: #030303; --accent: #b7db2c; --card: #0a0a0a; }
+        body { background: var(--bg); color: white; font-family: 'Poppins'; margin: 0; }
+        nav { padding: 20px 8%; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 50px 8%; }
+        .game-card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #111; transition: 0.3s; }
+        .game-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .thumb { height: 180px; background: linear-gradient(45deg, #111, #000); display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Space Grotesk'; }
+        .content { padding: 20px; }
+        .btn-get { display: block; width: 100%; padding: 10px; background: var(--accent); color: #000; text-align: center; text-decoration: none; font-weight: bold; border-radius: 5px; margin-top: 15px; }
     </style>
 </head>
 <body>
-    <script>
-        if(!localStorage.getItem("currentUser")) window.location.href="login.html";
-    </script>
-
     <nav>
-        <a href="index.html" style="color:var(--accent); text-decoration:none; font-weight:900;">LEMON CORE</a>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="minecraft.html">Minecraft</a>
-            <a href="promote.html">Promote</a>
-        </div>
+        <a href="index.html" style="color:var(--accent); text-decoration:none; font-weight:bold;">LEMON CORE</a>
+        <a href="index.html" style="color:#555; text-decoration:none;">Back</a>
     </nav>
-
-    <div class="container">
-        <h1 style="font-family:'Space Grotesk'; font-size: 40px;">ROBLOX <span style="color:var(--accent)">ZONE</span></h1>
-        <p style="color:#666">Premium scripts and custom gaming universes.</p>
-
-        <div class="game-grid">
-            <div class="game-card">
-                <div class="game-thumb" style="background: linear-gradient(45deg, #1a1a1a, #000);">BLOX FRUITS SCRIPT</div>
-                <h3 style="margin-top:20px;">Auto-Farm Hub</h3>
-                <p style="font-size:12px; color:#555; padding: 0 10px;">Mobile & PC supported. Fully undetected.</p>
-                <a href="https://pastebin.com/example" target="_blank" class="btn-elite btn-action">Get Script</a>
+    <div style="text-align:center; padding-top:50px;">
+        <h1 style="font-family:'Space Grotesk'; font-size:45px;">ROBLOX <span style="color:var(--accent)">SCRIPTS</span></h1>
+        <p style="color:#666;">High-performance scripts for top games.</p>
+    </div>
+    <div class="grid">
+        <div class="game-card">
+            <div class="thumb">BLOX FRUITS</div>
+            <div class="content">
+                <h3>Lemon Hub v4</h3>
+                <p style="color:#555; font-size:12px;">Auto Farm, Fruit Sniper, Fast Attack.</p>
+                <a href="#" class="btn-get">Get Script</a>
             </div>
-
-            <div class="game-card">
-                <div class="game-thumb" style="background: linear-gradient(45deg, #222, #000);">LEMON CORE OBBY</div>
-                <h3 style="margin-top:20px;">Official Community Map</h3>
-                <p style="font-size:12px; color:#555; padding: 0 10px;">Play our custom built obby on Roblox.</p>
-                <a href="https://www.roblox.com/games/example" target="_blank" class="btn-action">Play on Roblox</a>
+        </div>
+        <div class="game-card">
+            <div class="thumb">PET SIM 99</div>
+            <div class="content">
+                <h3>Auto-Clicker Pro</h3>
+                <p style="color:#555; font-size:12px;">Multi-instance support, Undetected.</p>
+                <a href="#" class="btn-get">Get Script</a>
             </div>
         </div>
     </div>
