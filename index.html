@@ -5,89 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lemon Hub | Season 2 Elite</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
-        :root { --accent: #b7db2c; --bg: #030303; --card: #0d0d0d; --glass: rgba(255, 255, 255, 0.03); }
+        :root { 
+            --accent: #b7db2c; 
+            --bg: #030303; 
+            --card: #0d0d0d; 
+            --glass: rgba(255, 255, 255, 0.03); 
+        }
         
+        * { box-sizing: border-box; }
+
         body { 
             background: var(--bg); color: white; font-family: 'Outfit'; margin: 0; 
             background-image: radial-gradient(circle at 50% -20%, #1a1a1a 0%, #030303 80%);
             min-height: 100vh; overflow-x: hidden;
         }
 
-        /* 📢 DYNAMIC ANNOUNCEMENT BAR */
+        /* 📢 DYNAMIC BROADCAST POPUP */
+        #broadcast-layer {
+            display: none; position: fixed; top: 20px; left: 50%; 
+            transform: translateX(-50%); width: 90%; max-width: 500px; 
+            z-index: 9999; animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .broadcast-card {
+            background: rgba(13, 13, 13, 0.95); backdrop-filter: blur(15px); 
+            border: 1px solid var(--accent); border-left: 5px solid var(--accent); 
+            padding: 20px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        @keyframes slideDown { from { top: -150px; opacity: 0; } to { top: 20px; opacity: 1; } }
+
+        /* 📢 ANNOUNCEMENT TEXT (Top Bar) */
         .announcement-bar {
             background: rgba(183, 219, 44, 0.1); border-bottom: 1px solid var(--accent);
-            padding: 12px 0; overflow: hidden; white-space: nowrap; position: relative;
-            z-index: 2000;
+            padding: 10px 0; overflow: hidden; white-space: nowrap;
         }
         .announcement-content {
-            display: inline-block; padding-left: 100%; animation: scrollText 15s linear infinite;
-            color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 14px;
-            letter-spacing: 1px;
+            display: inline-block; padding-left: 100%; animation: scrollText 25s linear infinite;
+            color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 13px;
         }
         @keyframes scrollText { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
 
+        /* HEADER & LOGO */
         header { padding: 25px 8%; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-family: 'Space Grotesk'; font-size: 28px; font-weight: 900; color: white; cursor: pointer; }
         .logo span { color: var(--accent); }
 
         .inv-preview {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.05);
-            padding: 8px 18px; border-radius: 50px; display: flex; gap: 10px; align-items: center; cursor: pointer;
-            transition: 0.3s;
+            padding: 8px 18px; border-radius: 50px; cursor: pointer; transition: 0.3s;
         }
-        .inv-preview:hover { background: rgba(255,255,255,0.1); }
 
-        .hero { text-align: center; padding: 30px 8%; }
-        .hero h1 { font-family: 'Space Grotesk'; font-size: clamp(30px, 7vw, 55px); margin: 0; letter-spacing: -2px; }
+        .hero { text-align: center; padding: 20px 8%; }
+        .hero h1 { font-family: 'Space Grotesk'; font-size: clamp(30px, 8vw, 60px); margin: 0; letter-spacing: -2px; }
 
-        /* MENU GRID - ALL BUTTONS */
+        /* GRID BUTTONS */
         .menu-grid { 
             display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-            gap: 15px; padding: 20px 8% 120px; max-width: 1400px; margin: auto;
+            gap: 15px; padding: 20px 8% 120px; max-width: 1300px; margin: auto;
         }
         .menu-card {
-            background: var(--card); border: 1px solid #1a1a1a; padding: 20px; border-radius: 20px;
-            text-decoration: none; color: white; text-align: center;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--card); border: 1px solid #1a1a1a; padding: 25px; border-radius: 25px;
+            text-decoration: none; color: white; text-align: center; transition: 0.3s;
         }
-        .menu-card:hover { 
-            transform: translateY(-5px); border-color: var(--accent);
-            box-shadow: 0 10px 25px rgba(183, 219, 44, 0.15);
-        }
-        .menu-card i { font-size: 28px; display: block; margin-bottom: 8px; font-style: normal; }
-        .menu-card h3 { font-family: 'Space Grotesk'; font-size: 16px; margin: 0; }
-        
-        #adminBtn { border-color: #ff4757; display: none; background: rgba(255, 71, 87, 0.08); }
+        .menu-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 25px rgba(183, 219, 44, 0.1); }
+        .menu-card i { font-size: 32px; display: block; margin-bottom: 10px; font-style: normal; }
+        .menu-card h3 { font-family: 'Space Grotesk'; font-size: 17px; margin: 0; }
 
-        /* BOTTOM STATS BAR */
+        /* FX Classes from Admin Panel */
+        .anim-glow { animation: hubGlow 1.5s infinite alternate; color: var(--accent) !important; }
+        @keyframes hubGlow { from { text-shadow: 0 0 5px var(--accent); } to { text-shadow: 0 0 15px var(--accent); } }
+        .shake { animation: hubShake 0.4s infinite; }
+        @keyframes hubShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+        .pulse { animation: hubPulse 1.5s infinite; }
+        @keyframes hubPulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* BOTTOM NAV BAR */
         .stats-bar {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.95); border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px 35px; border-radius: 100px; display: flex; gap: 35px;
-            backdrop-filter: blur(25px); z-index: 1000; font-size: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 35px; border-radius: 100px; display: flex; gap: 30px;
+            backdrop-filter: blur(20px); z-index: 1000; font-size: 14px;
         }
-        .stat-val { color: var(--accent); font-weight: 900; font-family: 'Space Grotesk'; }
+        .stat-val { color: var(--accent); font-weight: 900; }
+        #adminBtn { border-color: #ff4757; display: none; background: rgba(255, 71, 87, 0.05); }
 
     </style>
 </head>
 <body>
 
-    <div class="announcement-bar">
-        <div class="announcement-content" id="noticeText">
-            FETCHING LATEST UPDATES FROM SERVER... PLEASE WAIT...
+    <div id="broadcast-layer">
+        <div class="broadcast-card">
+            <div style="display: flex; justify-content: space-between;">
+                <span id="hub-tag" style="background: var(--accent); color:#000; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 10px;">SYSTEM</span>
+                <button onclick="document.getElementById('broadcast-layer').style.display='none'" style="background:none; border:none; color:#555; cursor:pointer; font-size: 20px;">&times;</button>
+            </div>
+            <h3 id="hub-title" style="margin: 12px 0 5px; font-family: 'Space Grotesk';"></h3>
+            <p id="hub-msg" style="color: #888; font-size: 13px; margin: 0; line-height: 1.4;"></p>
         </div>
+    </div>
+
+    <div class="announcement-bar">
+        <div class="announcement-content" id="noticeText">WELCOME TO LEMON HUB SEASON 2...</div>
     </div>
 
     <header>
         <div class="logo" id="adminTrigger">LEMON<span>HUB</span></div>
         <div class="inv-preview" onclick="window.location.href='inventory.html'">
-            <span style="font-size: 11px; color: #aaa; font-weight: 800;">INVENTORY</span>
-            <i style="font-style: normal;">🎒</i>
+            <span style="font-size: 11px; color: #777; font-weight: 800; letter-spacing: 1px;">INVENTORY 🎒</span>
         </div>
     </header>
 
@@ -96,18 +125,18 @@
     </div>
 
     <div class="menu-grid">
-        <a href="profile.html" class="menu-card"><i>👤</i><h3>Profile</h3></a>
         <a href="shop.html" class="menu-card"><i>🛒</i><h3>Item Shop</h3></a>
+        <a href="profile.html" class="menu-card"><i>👤</i><h3>Profile</h3></a>
+        <a href="leaderboard.html" class="menu-card"><i>🏆</i><h3>Leaderboard</h3></a>
         <a href="buy-coins.html" class="menu-card"><i>💎</i><h3>Coin Shop</h3></a>
-        <a href="leaderboard.html" class="menu-card"><i>🏆</i><h3>Rich List</h3></a>
         <a href="daily-reward.html" class="menu-card"><i>🎡</i><h3>Daily Spin</h3></a>
-        <a href="inventory.html" class="menu-card"><i>📦</i><h3>Inventory</h3></a>
+        <a href="settings.html" class="menu-card"><i>⚙️</i><h3>Settings</h3></a>
         <a href="minecraft.html" class="menu-card"><i>⛏️</i><h3>Minecraft</h3></a>
+        <a href="inventory.html" class="menu-card"><i>📦</i><h3>Inventory</h3></a>
         <a href="promote.html" class="menu-card"><i>🚀</i><h3>Promote</h3></a>
+        <a href="wiki.html" class="menu-card"><i>📖</i><h3>Wiki</h3></a>
         <a href="gameplay.html" class="menu-card"><i>🎮</i><h3>Play Game</h3></a>
         <a href="earn-money.html" class="menu-card"><i>💰</i><h3>Earn Money</h3></a>
-        <a href="wiki.html" class="menu-card"><i>📖</i><h3>Wiki</h3></a>
-        <a href="settings.html" class="menu-card"><i>⚙️</i><h3>Settings</h3></a>
         
         <a href="admin.html" id="adminBtn" class="menu-card">
             <i style="color:#ff4757;">👑</i>
@@ -132,16 +161,15 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 🔐 SECRET ADMIN TRIGGER (Click Logo 5 Times)
+        // 🔐 Secret Admin Access
         let adminClicks = 0;
         document.getElementById('adminTrigger').onclick = function() {
             adminClicks++;
             if(adminClicks === 5) {
-                let key = prompt("Developer Access Required:");
+                let key = prompt("Developer Key:");
                 if(key === "LEMON2026") {
                     document.getElementById('adminBtn').style.display = 'block';
                     localStorage.setItem('forceAdmin', 'true');
-                    alert("Welcome, Admin!");
                 }
                 adminClicks = 0;
             }
@@ -149,27 +177,34 @@
 
         firebase.auth().onAuthStateChanged(user => {
             if(user) {
-                // Load User Data
+                // User Balance & Role
                 db.ref('users/' + user.uid).on('value', snap => {
                     const d = snap.val() || {};
                     document.getElementById('uBal').innerText = (d.coins || 0).toLocaleString();
                     document.getElementById('uRank').innerText = d.role || "PLAYER";
-                    
                     if(d.role === 'ADMIN' || localStorage.getItem('forceAdmin') === 'true') {
                         document.getElementById('adminBtn').style.display = 'block';
                     }
                 });
 
-                // 📢 DYNAMIC ANNOUNCEMENT LOGIC
-                // Admin database-এ 'announcement/text' আপডেট করলে এখানেও বদলে যাবে
-                db.ref('settings/notice').on('value', nSnap => {
-                    const notice = nSnap.val();
-                    const noticeElement = document.getElementById('noticeText');
-                    if(notice) {
-                        noticeElement.innerText = notice;
+                // 📢 LISTEN TO ADMIN BROADCAST
+                db.ref('announcement').on('value', snap => {
+                    const data = snap.val();
+                    const layer = document.getElementById('broadcast-layer');
+                    if (data && data.active === true) {
+                        document.getElementById('hub-tag').innerText = data.tag;
+                        document.getElementById('hub-title').innerText = data.title;
+                        document.getElementById('hub-title').className = data.anim;
+                        document.getElementById('hub-msg').innerText = data.message;
+                        layer.style.display = 'block';
                     } else {
-                        noticeElement.innerText = "WELCOME TO LEMON CORE HUB SEASON 2! ENJOY YOUR STAY!";
+                        layer.style.display = 'none';
                     }
+                });
+
+                // Ticker Notice
+                db.ref('settings/notice').on('value', nSnap => {
+                    document.getElementById('noticeText').innerText = nSnap.val() || "WELCOME TO LEMON HUB SEASON 2!";
                 });
 
             } else { window.location.href = "login.html"; }
